@@ -1,0 +1,30 @@
+{
+  "name": "motif",
+  "version": "1.0.0",
+  "description": "Pattern-based programming language",
+  "main": "Motif.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "motif \"****** ***** **** *** ** *\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rottytooth/Motif.git"
+  },
+  "keywords": [
+    "esolang",
+    "pattern-based"
+  ],
+  "author": "Daniel Temkin",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rottytooth/Motif/issues"
+  },
+  "homepage": "https://github.com/rottytooth/Motif#readme",
+  "devDependencies": {
+    "grunt": "^1.3.0",
+    "grunt-contrib-concat": "^1.0.1"
+  }
+}

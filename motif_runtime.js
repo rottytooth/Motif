@@ -1,5 +1,0 @@
-
-motif.runtime =
-(function() {
-    
-})(motif);
