@@ -1,0 +1,144 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    background-color: #eee;
+    min-height: 100%;
+    min-width: 100%;
+}
+p {
+    margin-top:0;
+    margin-bottom:0
+}
+@font-face {
+    font-family: zig;
+    src: url(zig_____.ttf);
+}
+#stacks {
+    width: 25%;
+    border: #000066 5px solid;
+    height: 90%;
+    filter: blur(0.8px);
+    margin: 10;
+    padding: 0;
+    margin-top: 20;
+    margin-bottom: 20;
+    position: fixed;
+    left: 0;
+    top: 0;
+}
+#stack_blocker {
+    width: 25%;
+    height: 90%;
+    margin: 10;
+    padding: 0;
+    margin-top: 20;
+    margin-bottom: 20;
+    float: left;
+}
+
+/* main columns */
+#main {
+    padding-top: 30px;
+    padding-left: 0;
+    margin-left: 0;
+    width: 70%;
+    top: 0;
+    left: 0;
+    grid-template-columns: 50% 50%;
+    display: grid;
+    grid-gap: 5px;
+    filter: blur(0.8px);
+    float: left;
+}
+#main > div {
+    height: 100%;
+    min-height: 100%;
+    margin: 0;
+    line-height: 150%;
+}
+#main > div:nth-child(2n+1) {
+    direction:rtl;
+    color: #000066;
+    text-indent: -40px;
+    margin-right: 40px;
+}
+#main > div:nth-child(2n+0) {
+    color: #000066;
+    font-family: zig;
+    padding-left: 20px; 
+}
+#main > div.error {
+    color: #660000;
+}
+
+.cover {
+    pointer-events: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+#cover {
+    background: url('stripes.png');
+    opacity: .1;
+}
+#cover_color {
+    background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 35%, rgba(0,212,255,1) 100%);
+    opacity: .2;
+}
+#cover_grad {
+    background: radial-gradient(circle, rgba(200,200,200,1) 0%, rgba(200,200,200,1) 60%, rgba(32,32,32,1) 100%);
+    opacity: .2;
+}
+
+.blinking-cursor {
+    color: #000066;
+    animation: 1s blink step-end infinite;
+    margin-right: -4px;
+}
+/* .rblink {
+    color: #660000;
+    animation: 1s rblink step-end infinite;
+}
+.gblink {
+    color: #006600;
+    animation: 1s gblink step-end infinite;
+} */
+.bblink {
+    color: #000066;
+    animation: 1s bblink step-end infinite;
+}
+
+  
+  /* @keyframes "rblink" {
+    from, to {
+        color: #660000;
+    }
+    50% {
+        color: transparent;
+    }
+  } */
+
+  /* @keyframes "gblink" {
+    from, to {
+        color: #006600;
+    }
+    50% {
+        color: transparent;
+    }
+  }*/
+
+  @keyframes "bblink" {
+    from, to {
+        color: #000066;
+    }
+    50% {
+        color: transparent;
+    }
+  } 
+
+

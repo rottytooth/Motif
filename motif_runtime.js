@@ -1,0 +1,5 @@
+
+motif.runtime =
+(function() {
+    
+})(motif);

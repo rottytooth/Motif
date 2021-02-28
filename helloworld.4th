@@ -1,0 +1,66 @@
+1 3 6 6 2
+*
+DUP
+ROT
+*
+DUP
+EMIT \ PRINT 'H'
+DUP
+6 5
+*
+1
+-
++
+DUP
+EMIT \ PRINT 'e'
+7
++
+DUP
+EMIT \ PRINT 'l'
+DUP
+EMIT \ PRINT 'l'
+DUP
+3
++
+EMIT \ PRINT 'o'
+SWAP
+DUP
+2
+/
+DUP
+4 2
+*
++
+EMIT \ PRINT ','
+4
+-
+DUP
+EMIT
+SWAP
+4 3 4 2 1 1
++
++
++
++
++
++
+EMIT \ PRINT 'W'
+SWAP
+DUP
+3
++
+EMIT \ PRINT 'o'
+DUP
+3 3
++
++
+EMIT
+DUP
+EMIT
+4 2
+*
+-
+EMIT 
+1
++
+EMIT

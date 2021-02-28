@@ -1,0 +1,44 @@
+<html>
+<head>
+    <link href="motif.css" rel="stylesheet" />
+    <script type="text/javascript" src="motif.js"></script>
+    <script type="text/javascript" src="motif_lexer.js"></script>
+    <script type="text/javascript">
+
+        var lexer;
+        var opacity = .3;
+
+        window.onload = function(e) {
+            document.addEventListener('keypress', logKey);
+            document.addEventListener('keydown', stopKeyProp)
+            document.addEventListener('paste', readPastedCode)
+
+            lexer = motif.lexer;
+            // lexer.txtblock = "typing";
+            lexer.output = "main";
+            lexer.startNewLine();
+        };
+        function stopKeyProp(e) {
+            if (e.keyCode === 8) { // 8 = backspace
+                e.preventDefault();
+            }
+        }
+        function logKey(e) {
+            lexer.readCharacter(e, "main");
+            e.preventDefault();
+        }
+        function readPastedCode(e) {
+            let paste = (e.clipboardData || window.clipboardData).getData('text');
+            lexer.readTextBlock(paste, "main");
+        }
+    </script>
+</head>
+<body>
+    <div id="cover_grad" class="cover"></div>
+    <div id="cover_color" class="cover"></div>
+    <div id="cover" class="cover"></div>
+    <div id="stack_blocker"></div>
+    <div id="stacks"></div>
+    <div id="main"><div></div><div>motif repl console. enter command, or <a href="rules.html">learn the rules here</a></div></div>
+</body>
+</html>
