@@ -33,13 +33,6 @@ motif.lexer =
     var linenum = 0; // current line number (for reporting results)
 
     var currentline = "";
-
-    this.startNewLine = function() {
-        var parserBlock = document.getElementById(motif.lexer.output);
-        var newDiv = document.createElement("div");
-        parserBlock.appendChild(newDiv);
-        placeCursor();
-    }
     
     // Write a single character (as input by user) to the program and to the screen
     // If we are at the end of a line, tokenize that line
@@ -73,13 +66,13 @@ motif.lexer =
             } catch(e) {
                 currentline = ""; // in case it didn't clear before the error
                 if (e instanceof SyntaxError) {
-                    writeParseError(e);
+                    writeResponse(e, true);
                 }
-                else writeOtherError(e);
+                else writeResponse("Oh shit! Internal Error: " + e, true);
             }
             inspace = true;
-            startNewLine();
-            return; // we're writing through the writePareseBlock() and writeParseError(), so no reason to reason to let it get to writeToScreen() below
+            writeCode("", true); // starts a new line
+            return; // we're writing through the writeError() and writeParseBlock(), so no reason to reason to let it get to writeToScreen() below
         } 
 
         // default: any other character
@@ -174,59 +167,48 @@ motif.lexer =
         return motif.Token(motif.TokenTypes.SETMOTIF, line, motifblocks, linenum, motif.motifs.length - 1);
     }
 
-    // output functions for right column
+    // response from the lexer
     function writeParseBlock(token) {
-        var parserBlock = document.getElementById(motif.lexer.output);
-        var div = document.createElement("div");
-        div.innerText += token.tokentype + " " + token.stackname;
+        let content = "";
+        content += token.tokentype + " " + token.stackname;
         if (token.tokentype == motif.TokenTypes.SETMOTIF) {
-            div.innerText += ":" + token.blocklist.join(" ");
+            content += ":" + token.blocklist.join(" ");
         }
         if (token.tokentype == motif.TokenTypes.ROTATED) {
-            div.innerText += " " + (token.arguments + 1);
+            content += " " + (token.arguments + 1);
             if (token.arguments == 1) {
-                div.innerText += " (SWAP)";
+                content += " (SWAP)";
             }
             else if (token.arguments == 2) {
-                div.innerText += " (ROT)";
+                content += " (ROT)";
             }
         }
         if (token.tokentype == motif.TokenTypes.SIZE_CHANGE) {
-            div.innerText += ":";
+            content += ":";
             var added = false;
             for(var j = 0; j < token.arguments.length; j++) {
                 if (token.arguments[j] != 0) {
-                    if (added == true)  div.innerText += ", ";
-                    div.innerText += " word " + (j + 1) + " change: " + (token.arguments[j] > 0 ? "+" : "") + token.arguments[j];
+                    if (added == true)  content += ", ";
+                    content += " word " + (j + 1) + " change: " + (token.arguments[j] > 0 ? "+" : "") + token.arguments[j];
                     added = true;
                 }
             }
         }
-        parserBlock.appendChild(div);
-    }
-    function writeParseError(error) {
-        var parserBlock = document.getElementById(motif.lexer.output);
-        parserBlock.innerHTML += "<div class='error'>" + error + "<div>";
-    }
-    function writeOtherError(error) {
-        var parserBlock = document.getElementById(motif.lexer.output);
-        parserBlock.innerHTML += "<div class='error'>Oh shit! Internal Error: " + error + "<div>";
+        writeResponse(content);
     }
 
     // output function for left column (user input)
     function writeToScreen() {
-        var textBlock = document.getElementById(motif.lexer.output);
-        var div = document.createElement('div');
-
-        var isNewLine = false;
+        let strResponse = "";
+        let isNewLine = false;
         
         for (var i = 0; i < currentline.length; i++) {
             switch(currentline[i]) {
                 case "*":
-                    div.innerText += "\u2588"; // block
+                    strResponse += "\u2588"; // block
                     break;
                 case " ":
-                    div.innerText += "\u2003"; // em space
+                    strResponse += "\u2003"; // em space
                     break;
                 case "\n":
                     isNewLine = true;
@@ -234,32 +216,16 @@ motif.lexer =
                     break;
             }
         }
-        if (!isNewLine) {
-            textBlock.removeChild(textBlock.lastChild)
-        }
-        textBlock.appendChild(div);
-        placeCursor();
-    }
-
-    function placeCursor() {
-        var oldcursors = document.getElementsByClassName("blinking-cursor");
-        for (var i = oldcursors.length - 1; i >= 0; i--) {
-            oldcursors[i].remove();
-        }
-
-        var currBlock = document.getElementById(motif.lexer.output).lastChild;
-        var cursor = document.createElement('span');
-        cursor.setAttribute("class","blinking-cursor bblink");
-        cursor.innerText = "\u2502";
-        currBlock.appendChild(cursor);
+        writeCode(strResponse, true, isNewLine);
     }
 
     return {"readCharacter" : readCharacter,
-            "readTextBlock" : readTextBlock,
-            "startNewLine" : startNewLine};
+            "readTextBlock" : readTextBlock};
 
 })(motif);
 
-motif.lexer.txtblock = "";
+// TODO: check that these are set and throw exception if not
 
-motif.lexer.parseblock = "";
+motif.lexer.writeCode = ""; // this needs to be set to a method to write content to user
+
+motif.lexer.writeResponse = "" // this needs to be set to a method to write responses to the user from the lexer

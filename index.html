@@ -1,6 +1,7 @@
+<!DOCTYPE html>
 <html>
 <head>
-    <link href="styles/motif.css" rel="stylesheet" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">    <link href="styles/motif.css" rel="stylesheet" />
     <script type="text/javascript" src="src/motif.js"></script>
     <script type="text/javascript" src="src/motif_lexer.js"></script>
     <script type="text/javascript">
@@ -8,15 +9,55 @@
         var lexer;
         var opacity = .3;
 
+        function placeCursor() {
+            var oldcursors = document.getElementsByClassName("blinking-cursor");
+            for (var i = oldcursors.length - 1; i >= 0; i--) {
+                oldcursors[i].remove();
+            }
+
+            let currBlock = document.getElementById("main").lastChild;
+            let cursor = document.createElement('span');
+            cursor.setAttribute("class","blinking-cursor bblink");
+            cursor.innerText = "\u2502";
+            currBlock.appendChild(cursor);
+        }
+
+
+        // This simply adds a new div to main. If it is an odd numbered div, it will be content. If it is an even numbered div, it will be response from the lexer.
+        // TODO: this should take an argument to make sure it's an error or not and actually check
+        function writeCode(content, cursorMove = false, isNewLine = true) {
+            document.getElementById("main");
+            var newDiv = document.createElement("div");
+            newDiv.innerText = content;
+            if (!isNewLine) {
+                main.removeChild(main.lastChild)
+            }
+            main.appendChild(newDiv);
+            if (cursorMove) placeCursor();
+        }
+
+        function writeResponse(content, error = false) {
+            document.getElementById("main");
+            var newDiv = document.createElement("div");
+            if (error) {
+                newDiv.classList.add("error");
+            }
+            newDiv.innerText = content;
+            main.appendChild(newDiv);
+        }
+
         window.onload = function(e) {
             document.addEventListener('keypress', logKey);
             document.addEventListener('keydown', stopKeyProp)
             document.addEventListener('paste', readPastedCode)
 
             lexer = motif.lexer;
-            // lexer.txtblock = "typing";
-            lexer.output = "main";
-            lexer.startNewLine();
+
+            // events to actually write responses to the screen
+            motif.lexer.writeCode = writeCode; // code entered by user
+            motif.lexer.writeResponse = writeResponse; // response from the lexer
+
+            writeCode("");
         };
         function stopKeyProp(e) {
             if (e.keyCode === 8) { // 8 = backspace
