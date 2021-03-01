@@ -1,37 +1,37 @@
 const motif = require("../motif.js");
+const assert = require("assert");
 let lexer;
 
-function writeCode(content, cursorMove = false, isNewLine = true) {
-    console.log("CODE: " + content);
-}
-
-function writeResponse(content, error = false) {
-    console.log("ERROR: " + content);
+function compareMotifs(motif, match) {
+    for(let i = 0; i < motif.length; i++) {
+        assert(motif[i] == match[i]);
+    }
 }
 
 describe( "Motif", () => {
     before( () => {
         lexer = motif.motif.lexer;
-        motif.motif.lexer.writeCode = writeCode;
-        motif.motif.lexer.writeResponse = writeResponse;
     } );
 
-    after( () => {
-        console.log( "after executes once after all tests" );
-    } );
+    // after( () => {
+    // } );
 
-    describe( "motifs", () => {
-        beforeEach( () => {
-            console.log( "beforeEach executes before every test" );
+    describe( "initial motifs", () => {
+        // beforeEach( () => {
+        // } );
+
+        it( "three-part motif", () => {
+            lexer.readTextBlock("**************** ** *");
+            assert(motif.motif.motifs.length === 1);
+            compareMotifs(motif.motif.motifs[0], [1,2,16])
         } );
 
-        it( "first motif", () => {
+        it( "five-part motif", () => {
             lexer.readTextBlock("***** **** *** ** *");
-            assert.equal(motif.motif.motifs.length, 1);
-            for (var i = 0; i < 5; i++)
-                assert.equal(motif.motif.motifs[0][i], i+1);
+            assert(motif.motif.motifs.length === 1);
+            compareMotifs(motif.motif.motifs[0], [1,2,3,4,5])
         } );
-        
+
     } );
 
 } );

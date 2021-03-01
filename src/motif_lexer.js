@@ -66,12 +66,14 @@ motif.lexer =
             } catch(e) {
                 currentline = ""; // in case it didn't clear before the error
                 if (e instanceof SyntaxError) {
-                    writeResponse(e, true);
+                    if (typeof writeResponse != 'undefined') writeResponse(e, true);
                 }
-                else writeResponse("Oh shit! Internal Error: " + e, true);
+                else {
+                    if (typeof writeResponse != 'undefined') writeResponse("Oh shit! Internal Error: " + e, true);
+                }
             }
             inspace = true;
-            writeCode("", true); // starts a new line
+            if (typeof writeCode != 'undefined') writeCode("", true); // starts a new line
             return; // we're writing through the writeError() and writeParseBlock(), so no reason to reason to let it get to writeToScreen() below
         } 
 
@@ -194,7 +196,7 @@ motif.lexer =
                 }
             }
         }
-        writeResponse(content);
+        if (typeof writeResponse != 'undefined') writeResponse(content);
     }
 
     // output function for left column (user input)
@@ -216,7 +218,7 @@ motif.lexer =
                     break;
             }
         }
-        writeCode(strResponse, true, isNewLine);
+        if (typeof writeCode != 'undefined') writeCode(strResponse, true, isNewLine);
     }
 
     return {"readCharacter" : readCharacter,
@@ -226,6 +228,6 @@ motif.lexer =
 
 // TODO: check that these are set and throw exception if not
 
-motif.lexer.writeCode = ""; // this needs to be set to a method to write content to user
+//motif.lexer.writeCode = ""; // this needs to be set to a method to write content to user
 
-motif.lexer.writeResponse = "" // this needs to be set to a method to write responses to the user from the lexer
+//motif.lexer.writeResponse = "" // this needs to be set to a method to write responses to the user from the lexer

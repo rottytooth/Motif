@@ -25,6 +25,7 @@
   "homepage": "https://github.com/rottytooth/Motif#readme",
   "devDependencies": {
     "grunt": "^1.3.0",
-    "grunt-contrib-concat": "^1.0.1"
+    "grunt-contrib-concat": "^1.0.1",
+    "nyc": "^15.1.0"
   }
 }
