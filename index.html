@@ -4,9 +4,10 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">    <link href="styles/motif.css" rel="stylesheet" />
     <script type="text/javascript" src="src/motif.js"></script>
     <script type="text/javascript" src="src/motif_lexer.js"></script>
+    <script type="text/javascript" src="src/motif_runtime.js"></script>
     <script type="text/javascript">
 
-        var lexer;
+        var lexer, runtime;
         var opacity = .3;
 
         function placeCursor() {
@@ -46,16 +47,31 @@
             main.appendChild(newDiv);
         }
 
+        function updateStacks() {
+            let stackbox = document.getElementById("stacks");
+            let text = "";
+            for(let i = 0; i < runtime.stacks.length; i++) {
+                text += String.fromCharCode('A'.charCodeAt(0) + i) + " [";
+                for(let j = 0; j < runtime.stacks[i].length; j++) {
+                    if (j > 0) text += " ";
+                    text += runtime.stacks[i][j];
+                }
+                text += "]<br/>";
+            }
+            stackbox.innerHTML = text;
+        }
+
+        function updateOutput(content) {
+
+        }
+
         window.onload = function(e) {
             document.addEventListener('keypress', logKey);
             document.addEventListener('keydown', stopKeyProp)
             document.addEventListener('paste', readPastedCode)
 
-            lexer = new motif.lexer(writeCode, writeResponse);
-
-            // events to actually write responses to the screen
-            motif.lexer.writeCode = writeCode; // code entered by user
-            motif.lexer.writeResponse = writeResponse; // response from the lexer
+            runtime = new motif.runtime(updateStacks, updateOutput);
+            lexer = new motif.lexer(writeCode, writeResponse, runtime);
 
             writeCode("");
         };

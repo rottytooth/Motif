@@ -21,13 +21,12 @@ p {
     border: #000066 5px solid;
     height: 90%;
     filter: blur(0.8px);
-    margin: 10;
-    padding: 0;
-    margin-top: 20;
-    margin-bottom: 20;
+    padding: 10px;
     position: fixed;
-    left: 0;
-    top: 0;
+    left: 10px;
+    top: 10px;
+    font-family: zig;
+    color: #000066;
 }
 #stack_blocker {
     width: 25%;

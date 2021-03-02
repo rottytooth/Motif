@@ -34,6 +34,7 @@ motif.TokenTypes = {
 
 // The commands and the TokenTypes that signify them
 motif.Commands = {
+    NEWSTACK: motif.TokenTypes.SETMOTIF
     // MOT: motif.TokenTypes.MOTIF,
     // PUSH: motif.TokenTypes.NEW_WORDS_END,
     // EMIT: motif.TokenTypes.REVERSED,

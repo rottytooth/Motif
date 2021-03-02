@@ -1,10 +1,12 @@
 // This is responsible both for lexing and for display to the user
 // relevant to lexing (eg syntax errors)
-motif.lexer = function(writeCode, writeResponse) { 
+motif.lexer = function(writeCode, writeResponse, runtime) { 
 
     this.tokens = [];
 
     this.motifs = [];
+
+    this.runtime = runtime;
 
     let inspace = true; // whether we are currently in a space
 
@@ -50,9 +52,8 @@ motif.lexer = function(writeCode, writeResponse) {
         if (e.key) e = e.key;
 
         if (e == " ") {
-            if (!inspace) {
-                currentline += " ";
-            }
+            if (!inspace) currentline += " ";
+
             inspace = true
             writeToScreen();
             return;
@@ -61,7 +62,13 @@ motif.lexer = function(writeCode, writeResponse) {
             linenum++;
             try {
                 this.tokens.push(tokenize(currentline, linenum));
+                
+                // send response to user
                 writeParseBlock(this.tokens[this.tokens.length - 1]);
+
+                // if we have a runtime, execute it
+                if (typeof this.runtime != 'undefined') this.runtime.execute(this.tokens[this.tokens.length - 1]);
+
                 currentline += "\n";
                 this.program += currentline; // FIXME: this is never used again
                 currentline = "";
@@ -77,8 +84,8 @@ motif.lexer = function(writeCode, writeResponse) {
                 }
             }
             inspace = true;
-            if (typeof writeCode != 'undefined') writeCode("", true); // starts a new line
-            return; // we're writing through the writeError() and writeParseBlock(), so no reason to reason to let it get to writeToScreen() below
+            writeCode("", true); // starts a new line
+            return; // we're writing through the writeResponse() and writeCode(), so no reason to reason to let it get to writeToScreen() below
         } 
 
         // default: any other character
