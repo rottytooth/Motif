@@ -90,6 +90,8 @@ motif.lexer = function(writeCode, writeResponse) {
 
     this.program = ""; // this is not currently used, but builds up the whole program
 
+    this.error = ""; // last error will be here
+
     // When code is pasted in as a block, we have to iterate through it
     // Also, we treat it a bit differently:
     //      * stars are reversed (right to left)
@@ -142,10 +144,12 @@ motif.lexer = function(writeCode, writeResponse) {
             } catch(e) {
                 currentline = ""; // in case it didn't clear before the error
                 if (e instanceof SyntaxError) {
-                    if (typeof writeResponse != 'undefined') writeResponse(e, true);
+                    this.error = e;
+                    writeResponse(e, true);
                 }
                 else {
-                    if (typeof writeResponse != 'undefined') writeResponse("Oh shit! Internal Error: " + e, true);
+                    this.error = e;
+                    writeResponse("Oh shit! Internal Error: " + e, true);
                 }
             }
             inspace = true;
@@ -163,7 +167,7 @@ motif.lexer = function(writeCode, writeResponse) {
         if (motifblocks.length < 3) {
             throw new SyntaxError("Motif must be at least three words", linenum, line);
         }
-        if (motifblocks.every(el => el.length == 1)) {
+        if (motifblocks.every(el => el == 1)) {
             throw new SyntaxError("Motif must have at least one word with more than one character");
         }
         if (!motif.isPrime(motifblocks.length)) {
@@ -270,7 +274,7 @@ motif.lexer = function(writeCode, writeResponse) {
                 }
             }
         }
-        if (typeof writeResponse != 'undefined') writeResponse(content);
+        writeResponse(content);
     }
 
     // output function for left column (user input)
