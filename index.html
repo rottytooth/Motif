@@ -51,7 +51,7 @@
             document.addEventListener('keydown', stopKeyProp)
             document.addEventListener('paste', readPastedCode)
 
-            lexer = motif.lexer;
+            lexer = new motif.lexer(writeCode, writeResponse);
 
             // events to actually write responses to the screen
             motif.lexer.writeCode = writeCode; // code entered by user

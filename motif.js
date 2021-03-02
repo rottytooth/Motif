@@ -76,13 +76,19 @@ motif.isPrime = function(value) {
 
 // This is responsible both for lexing and for display to the user
 // relevant to lexing (eg syntax errors)
-motif.lexer =
-(function() {
+motif.lexer = function(writeCode, writeResponse) { 
 
-    var program = "";
+    this.tokens = [];
 
-    var tokens = [];
+    this.motifs = [];
 
+    let inspace = true; // whether we are currently in a space
+
+    let linenum = 0; // current line number (for reporting results)
+
+    let currentline = "";
+
+    this.program = ""; // this is not currently used, but builds up the whole program
 
     // When code is pasted in as a block, we have to iterate through it
     // Also, we treat it a bit differently:
@@ -103,12 +109,6 @@ motif.lexer =
             this.readCharacter("\n"); // read the new line we got rid of by splitting
         });
     }
-
-    var inspace = true; // whether we are currently in a space
-
-    var linenum = 0; // current line number (for reporting results)
-
-    var currentline = "";
     
     // Write a single character (as input by user) to the program and to the screen
     // If we are at the end of a line, tokenize that line
@@ -134,10 +134,10 @@ motif.lexer =
         if (e == "\r" || e == "\n" || e.toLowerCase() == "enter") {
             linenum++;
             try {
-                tokens.push(tokenize(currentline, linenum));
-                writeParseBlock(tokens[tokens.length - 1]);
+                this.tokens.push(tokenize(currentline, linenum));
+                writeParseBlock(this.tokens[this.tokens.length - 1]);
                 currentline += "\n";
-                program += currentline; // FIXME: this is never used again
+                this.program += currentline; // FIXME: this is never used again
                 currentline = "";
             } catch(e) {
                 currentline = ""; // in case it didn't clear before the error
@@ -159,9 +159,7 @@ motif.lexer =
         writeToScreen();
     }
 
-    motif.motifs = [];
-
-    function verifyMotif(motifblocks, line, linenum) {
+    verifyMotif = (motifblocks, line, linenum) => {
         if (motifblocks.length < 3) {
             throw new SyntaxError("Motif must be at least three words", linenum, line);
         }
@@ -172,58 +170,58 @@ motif.lexer =
             // is not prime, invalid to be motif
             throw new SyntaxError("Motif must have a prime-number count of words", linenum, line);
         }
-        // if (!motif.motifs.every(el => el.length < motifblocks.length - 2 || el.length > motifblocks.length + 2))  {
+        // if (!motifs.every(el => el.length < motifblocks.length - 2 || el.length > motifblocks.length + 2))  {
         //     throw new SyntaxError("Motif must be at least two more or two fewer elements than other motifs");
         // }
         if (JSON.stringify(motifblocks) === JSON.stringify(motifblocks.slice().reverse())) {
             throw new SyntaxError("Motif cannot be symmetrical!");
         }
     } 
-    
-    function tokenize(line, linenum) {
+
+    const tokenize = (line, linenum) => {
         line = line.trim();
     
         // Do we have any motif yet? If not, this is the proposed motif
-        if (motif.motifs.length == 0) {
-            var motifblocks = line.split(" ").map(function(word){
+        if (this.motifs.length == 0) {
+            const motifblocks = line.split(" ").map(function(word){
                 return word.length;
             });
             verifyMotif(motifblocks, line, linenum);
-            motif.motifs.push(motifblocks);
+            this.motifs.push(motifblocks);
             return motif.Token(motif.TokenTypes.SETMOTIF, line, motifblocks, linenum, 0);
         }
-        var line_lengths = line.split(" ").map(function(word){
+        const line_lengths = line.split(" ").map(function(word){
             return word.length
         });
 
         // Loop through established motifs, to see if it is a variation of one
         // m == the (established) motif we are looking at
-        for(var m = 0; m < motif.motifs.length; m++) {
+        for(let m = 0; m < this.motifs.length; m++) {
             // Is it the same number of blocks / same plus one of an existing motif
-            if (motif.motifs[m].length == line_lengths.length || motif.motifs[m].length - 1 == line_lengths.length) {
+            if (this.motifs[m].length == line_lengths.length || this.motifs[m].length - 1 == line_lengths.length) {
                 
                 // Does it match any of our motifs exactly?
-                if (JSON.stringify(motif.motifs[m]) === JSON.stringify(line_lengths)) {
+                if (JSON.stringify(this.motifs[m]) === JSON.stringify(line_lengths)) {
                     return motif.Token(motif.TokenTypes.MOTIF, line, line_lengths, linenum, m);
                 }
 
                 // Is it reversed?
-                if (JSON.stringify(motif.motifs[m]) === JSON.stringify(line_lengths.slice().reverse())) {
+                if (JSON.stringify(this.motifs[m]) === JSON.stringify(line_lengths.slice().reverse())) {
                     return motif.Token(motif.TokenTypes.REVERSED, line, line_lengths, linenum, m);
                 }
 
                 // Is it rotated?
-                for(var j = 0; j < motif.motifs[m].length; j++) {
-                    if (JSON.stringify(motif.motifs[m].slice().rotate(j)) === JSON.stringify(line_lengths)) {
+                for(let j = 0; j < this.motifs[m].length; j++) {
+                    if (JSON.stringify(this.motifs[m].slice().rotate(j)) === JSON.stringify(line_lengths)) {
                         return motif.Token(motif.TokenTypes.ROTATED, line, line_lengths, linenum, m, j);
                     }
                 }
 
                 // Are some words longer or shorter (but same number of words)?
-                if (motif.motifs[m].length == line_lengths.length) { // only if same length
-                    var changes = [];
-                    for (var j = 0; j < motif.motifs[m].length; j++) {
-                        changes[j] = line_lengths[j] - motif.motifs[m][j];
+                if (this.motifs[m].length == line_lengths.length) { // only if same length
+                    let changes = [];
+                    for (let j = 0; j < this.motifs[m].length; j++) {
+                        changes[j] = line_lengths[j] - this.motifs[m][j];
                     }
                     if (changes.reduce((a, b) => a + b) != 0) { // if sum is not zero
                         return motif.Token(motif.TokenTypes.SIZE_CHANGE, line, line_lengths, linenum, m, changes);
@@ -234,19 +232,19 @@ motif.lexer =
                 // to be a play on existing motif, but not one we recognize
                 throw new SyntaxError("Could not determine command", linenum, line);
             }
-    }
+        }
 
         // if we got this far, must be trying to set a new motif
-        var motifblocks = line.split(" ").map(function(word){
+        const motifblocks = line.split(" ").map(function(word){
             return word.length;
         });
         verifyMotif(motifblocks, line, linenum);
-        motif.motifs.push(motifblocks);
-        return motif.Token(motif.TokenTypes.SETMOTIF, line, motifblocks, linenum, motif.motifs.length - 1);
+        this.motifs.push(motifblocks);
+        return motif.Token(motif.TokenTypes.SETMOTIF, line, motifblocks, linenum, this.motifs.length - 1);
     }
 
     // response from the lexer
-    function writeParseBlock(token) {
+    const writeParseBlock = (token) => {
         let content = "";
         content += token.tokentype + " " + token.stackname;
         if (token.tokentype == motif.TokenTypes.SETMOTIF) {
@@ -263,8 +261,8 @@ motif.lexer =
         }
         if (token.tokentype == motif.TokenTypes.SIZE_CHANGE) {
             content += ":";
-            var added = false;
-            for(var j = 0; j < token.arguments.length; j++) {
+            let added = false;
+            for(let j = 0; j < token.arguments.length; j++) {
                 if (token.arguments[j] != 0) {
                     if (added == true)  content += ", ";
                     content += " word " + (j + 1) + " change: " + (token.arguments[j] > 0 ? "+" : "") + token.arguments[j];
@@ -276,11 +274,11 @@ motif.lexer =
     }
 
     // output function for left column (user input)
-    function writeToScreen() {
+    const writeToScreen = () => {
         let strResponse = "";
         let isNewLine = false;
         
-        for (var i = 0; i < currentline.length; i++) {
+        for (let i = 0; i < currentline.length; i++) {
             switch(currentline[i]) {
                 case "*":
                     strResponse += "\u2588"; // block
@@ -296,17 +294,8 @@ motif.lexer =
         }
         if (typeof writeCode != 'undefined') writeCode(strResponse, true, isNewLine);
     }
+}
 
-    return {"readCharacter" : readCharacter,
-            "readTextBlock" : readTextBlock};
-
-})(motif);
-
-// TODO: check that these are set and throw exception if not
-
-//motif.lexer.writeCode = ""; // this needs to be set to a method to write content to user
-
-//motif.lexer.writeResponse = "" // this needs to be set to a method to write responses to the user from the lexer
 
 motif.runtime =
 (function() {

@@ -1,6 +1,8 @@
 const motif = require("../motif.js");
 const assert = require("assert");
+
 let lexer;
+let has_error;
 
 function compareMotifs(motif, match) {
     for(let i = 0; i < motif.length; i++) {
@@ -8,28 +10,47 @@ function compareMotifs(motif, match) {
     }
 }
 
+function writeCode(content, cursorMove = false, isNewLine = true) {
+    console.log(content);
+}
+
+function writeResponse(content, error = false) {
+    console.log(content);
+    has_error = error;
+}
+
 describe( "Motif", () => {
-    before( () => {
-        lexer = motif.motif.lexer;
-    } );
+    // before( () => {
+    //     lexer = motif.motif.lexer;
+    // } );
 
     // after( () => {
     // } );
 
     describe( "initial motifs", () => {
-        // beforeEach( () => {
-        // } );
-
-        it( "three-part motif", () => {
-            lexer.readTextBlock("**************** ** *");
-            assert(motif.motif.motifs.length === 1);
-            compareMotifs(motif.motif.motifs[0], [1,2,16])
+        beforeEach( () => {
+            has_error = false;
         } );
 
-        it( "five-part motif", () => {
+        it("three-part motif", () => {
+            lexer = new motif.motif.lexer(writeCode, writeResponse);
+            lexer.readTextBlock("**************** ** *");
+            assert(lexer.motifs.length === 1);
+            compareMotifs(lexer.motifs[0], [1,2,16])
+        } );
+
+        it("five-part motif", () => {
+            lexer = new motif.motif.lexer(writeCode, writeResponse);
             lexer.readTextBlock("***** **** *** ** *");
-            assert(motif.motif.motifs.length === 1);
-            compareMotifs(motif.motif.motifs[0], [1,2,3,4,5])
+            assert(lexer.motifs.length === 1);
+            compareMotifs(lexer.motifs[0], [1,2,3,4,5])
+        } );
+
+        it("non-prime motif", () => {
+            lexer = new motif.motif.lexer(writeCode, writeResponse);
+            lexer.readTextBlock("***** **** *** ** * *****");
+            assert(lexer.motifs.length === 0);
+            assert(has_error == true);
         } );
 
     } );
