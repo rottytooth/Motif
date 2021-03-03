@@ -122,8 +122,8 @@ motif.lexer = function(writeCode, writeResponse, runtime) {
                 return word.length;
             });
             verifyMotif(motifblocks, line, linenum);
-            this.motifs.push(motifblocks);
-            return motif.Token(motif.TokenTypes.SETMOTIF, line, motifblocks, linenum, 0);
+            this.motifs.push([...motifblocks]);
+            return motif.Token(motif.TokenTypes.SETMOTIF, line, [...motifblocks], linenum, 0);
         }
         const line_lengths = line.split(" ").map(function(word){
             return word.length

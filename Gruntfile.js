@@ -6,7 +6,7 @@ module.exports = function(grunt) {
 				separator: '\n'
 			},
 			dist : {
-				src: ['src/motif.js','src/motif_lexer.js','src/motif_runtime.js'],
+				src: ['src/motif_utils.js','src/motif_lexer.js','src/motif_runtime.js'],
 				dest: 'motif.js',
 				},
 		}

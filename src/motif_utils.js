@@ -21,7 +21,14 @@ motif.SyntaxError = function(message, linenum, line) {
     this.toString = function() {
       return "SYNTAX ERROR: " + this.message;
     };
-  }
+}
+
+motif.RuntimeError = function(message) {
+    this.message = message;
+    this.toString = function() {
+        return "RUNTIME ERROR: " + this.message;
+    };
+}
 
 // The set of variations on a motif
 motif.TokenTypes = {
@@ -34,13 +41,13 @@ motif.TokenTypes = {
 
 // The commands and the TokenTypes that signify them
 motif.Commands = {
-    NEWSTACK: motif.TokenTypes.SETMOTIF
+    NEWSTACK: motif.TokenTypes.SETMOTIF,
+    ROT: motif.TokenTypes.ROTATED,
     // MOT: motif.TokenTypes.MOTIF,
     // PUSH: motif.TokenTypes.NEW_WORDS_END,
     // EMIT: motif.TokenTypes.REVERSED,
     // MUL: motif.TokenTypes.EXTENDED,
     // DIV: motif.TokenTypes.SHORTENED,
-    // ROT: motif.TokenTypes.ROTATED,
     // ADD: motif.TokenTypes.DOUBLED_WORD,
     // SUB: motif.TokenTypes.DOUBLED_TWO_WORD_PHRASE,
     // DROP: motif.TokenTypes.MISSING_LAST_WORD,
