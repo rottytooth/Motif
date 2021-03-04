@@ -13,6 +13,10 @@ Array.prototype.rotate = (function() {
     };
 })();
 
+motif.GetStackName = function(i) {
+    return String.fromCharCode('A'.charCodeAt(0) + i);
+}
+
 
 motif.SyntaxError = function(message, linenum, line) {
     this.message = message;
@@ -21,7 +25,14 @@ motif.SyntaxError = function(message, linenum, line) {
     this.toString = function() {
       return "SYNTAX ERROR: " + this.message;
     };
-  }
+}
+
+motif.RuntimeError = function(message) {
+    this.message = message;
+    this.toString = function() {
+        return "RUNTIME ERROR: " + this.message;
+    };
+}
 
 // The set of variations on a motif
 motif.TokenTypes = {
@@ -34,13 +45,14 @@ motif.TokenTypes = {
 
 // The commands and the TokenTypes that signify them
 motif.Commands = {
+    NEWSTACK: motif.TokenTypes.SETMOTIF,
+    ROT: motif.TokenTypes.ROTATED,
+    ADD: motif.TokenTypes.SIZE_CHANGE,
     // MOT: motif.TokenTypes.MOTIF,
     // PUSH: motif.TokenTypes.NEW_WORDS_END,
     // EMIT: motif.TokenTypes.REVERSED,
     // MUL: motif.TokenTypes.EXTENDED,
     // DIV: motif.TokenTypes.SHORTENED,
-    // ROT: motif.TokenTypes.ROTATED,
-    // ADD: motif.TokenTypes.DOUBLED_WORD,
     // SUB: motif.TokenTypes.DOUBLED_TWO_WORD_PHRASE,
     // DROP: motif.TokenTypes.MISSING_LAST_WORD,
     // INPUT: motif.TokenTypes.DOUBLED,
@@ -76,11 +88,13 @@ motif.isPrime = function(value) {
 
 // This is responsible both for lexing and for display to the user
 // relevant to lexing (eg syntax errors)
-motif.lexer = function(writeCode, writeResponse) { 
+motif.lexer = function(writeCode, writeResponse, runtime) { 
 
     this.tokens = [];
 
     this.motifs = [];
+
+    this.runtime = runtime;
 
     let inspace = true; // whether we are currently in a space
 
@@ -126,9 +140,8 @@ motif.lexer = function(writeCode, writeResponse) {
         if (e.key) e = e.key;
 
         if (e == " ") {
-            if (!inspace) {
-                currentline += " ";
-            }
+            if (!inspace) currentline += " ";
+
             inspace = true
             writeToScreen();
             return;
@@ -137,7 +150,13 @@ motif.lexer = function(writeCode, writeResponse) {
             linenum++;
             try {
                 this.tokens.push(tokenize(currentline, linenum));
+                
+                // send response to user
                 writeParseBlock(this.tokens[this.tokens.length - 1]);
+
+                // if we have a runtime, execute it
+                if (typeof this.runtime != 'undefined') this.runtime.execute(this.tokens[this.tokens.length - 1]);
+
                 currentline += "\n";
                 this.program += currentline; // FIXME: this is never used again
                 currentline = "";
@@ -153,8 +172,8 @@ motif.lexer = function(writeCode, writeResponse) {
                 }
             }
             inspace = true;
-            if (typeof writeCode != 'undefined') writeCode("", true); // starts a new line
-            return; // we're writing through the writeError() and writeParseBlock(), so no reason to reason to let it get to writeToScreen() below
+            writeCode("", true); // starts a new line
+            return; // we're writing through the writeResponse() and writeCode(), so no reason to reason to let it get to writeToScreen() below
         } 
 
         // default: any other character
@@ -163,7 +182,7 @@ motif.lexer = function(writeCode, writeResponse) {
         writeToScreen();
     }
 
-    verifyMotif = (motifblocks, line, linenum) => {
+    const verifyMotif = (motifblocks, line, linenum) => {
         if (motifblocks.length < 3) {
             throw new SyntaxError("Motif must be at least three words", linenum, line);
         }
@@ -191,8 +210,8 @@ motif.lexer = function(writeCode, writeResponse) {
                 return word.length;
             });
             verifyMotif(motifblocks, line, linenum);
-            this.motifs.push(motifblocks);
-            return motif.Token(motif.TokenTypes.SETMOTIF, line, motifblocks, linenum, 0);
+            this.motifs.push([...motifblocks]);
+            return motif.Token(motif.TokenTypes.SETMOTIF, line, [...motifblocks], linenum, 0);
         }
         const line_lengths = line.split(" ").map(function(word){
             return word.length
@@ -242,9 +261,9 @@ motif.lexer = function(writeCode, writeResponse) {
         const motifblocks = line.split(" ").map(function(word){
             return word.length;
         });
-        verifyMotif(motifblocks, line, linenum);
-        this.motifs.push(motifblocks);
-        return motif.Token(motif.TokenTypes.SETMOTIF, line, motifblocks, linenum, this.motifs.length - 1);
+        verifyMotif([...motifblocks], line, linenum);
+        this.motifs.push([...motifblocks]);
+        return motif.Token(motif.TokenTypes.SETMOTIF, line, [...motifblocks], linenum, this.motifs.length - 1);
     }
 
     // response from the lexer
@@ -301,13 +320,60 @@ motif.lexer = function(writeCode, writeResponse) {
 }
 
 
-motif.runtime =
-(function() {
+motif.runtime = function(updateStacks, updateOutput) {
     
-})(motif);
+    this.stacks = [];
 
+    this.execute = function(token) {
+        switch (getKeyByValue(motif.Commands, token.tokentype)) {
+            case "NEWSTACK":
+                this.addStack(token.blocklist);
+                break;
+            case "ROT":
+                this.rotate(token.stack, token.arguments);
+                break;
+            case "ADD":
+                this.add(token.stack, token.arguments);
+        }
+        console.log(token);
+    }
 
-module.exports = {
-    motif : motif
+    const getKeyByValue = (object, value) => {
+        return Object.keys(object).find(key => object[key] === value);
+    }
+
+    this.addStack = function(startState) {
+        this.stacks.push(startState);
+        updateStacks();
+    }
+
+    this.rotate = function(s, num_items_to_rotate) {
+        // for num_items_to_rotate: SWAP = 1, ROT = 2
+        if (num_items_to_rotate > this.stacks[s].length) {
+            throw new RuntimeError("Could not rotate more than # of items in the stack");
+        }
+        rotstack = this.stacks[s].splice(0, num_items_to_rotate + 1);
+        rotstack = rotstack.slice().rotate(1);
+        this.stacks[s] = rotstack.concat(this.stacks[s]);
+
+        updateStacks();
+    }
+
+    this.add = function(s, values) {
+        for(let i = 0; i < values.length; i++) {
+            if (values[i] != 0) {
+                if (i >= this.stacks[s].length) {
+                    throw new RuntimeError("Attemped to change size of word " + i + " in stack" + motif.GetStackName(s) + " with only " + this.stacks[s].length + " items");
+                }
+                this.stacks[s][i] += values[i];
+            }
+        }
+        updateStacks();
+    }
 }
- 
+
+if (typeof module !== 'undefined') {
+    module.exports = {
+        motif : motif
+    }
+}

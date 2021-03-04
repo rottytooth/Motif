@@ -11,6 +11,8 @@ motif.runtime = function(updateStacks, updateOutput) {
             case "ROT":
                 this.rotate(token.stack, token.arguments);
                 break;
+            case "ADD":
+                this.add(token.stack, token.arguments);
         }
         console.log(token);
     }
@@ -33,6 +35,18 @@ motif.runtime = function(updateStacks, updateOutput) {
         rotstack = rotstack.slice().rotate(1);
         this.stacks[s] = rotstack.concat(this.stacks[s]);
 
+        updateStacks();
+    }
+
+    this.add = function(s, values) {
+        for(let i = 0; i < values.length; i++) {
+            if (values[i] != 0) {
+                if (i >= this.stacks[s].length) {
+                    throw new RuntimeError("Attemped to change size of word " + i + " in stack" + motif.GetStackName(s) + " with only " + this.stacks[s].length + " items");
+                }
+                this.stacks[s][i] += values[i];
+            }
+        }
         updateStacks();
     }
 }

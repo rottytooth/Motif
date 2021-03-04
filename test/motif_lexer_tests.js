@@ -19,7 +19,7 @@ function writeResponse(content, error = false) {
     has_error = error;
 }
 
-describe( "Motif", () => {
+describe( "Lexer tests", () => {
     // before( () => {
     //     lexer = motif.motif.lexer;
     // } );

@@ -13,6 +13,10 @@ Array.prototype.rotate = (function() {
     };
 })();
 
+motif.GetStackName = function(i) {
+    return String.fromCharCode('A'.charCodeAt(0) + i);
+}
+
 
 motif.SyntaxError = function(message, linenum, line) {
     this.message = message;
@@ -43,12 +47,12 @@ motif.TokenTypes = {
 motif.Commands = {
     NEWSTACK: motif.TokenTypes.SETMOTIF,
     ROT: motif.TokenTypes.ROTATED,
+    ADD: motif.TokenTypes.SIZE_CHANGE,
     // MOT: motif.TokenTypes.MOTIF,
     // PUSH: motif.TokenTypes.NEW_WORDS_END,
     // EMIT: motif.TokenTypes.REVERSED,
     // MUL: motif.TokenTypes.EXTENDED,
     // DIV: motif.TokenTypes.SHORTENED,
-    // ADD: motif.TokenTypes.DOUBLED_WORD,
     // SUB: motif.TokenTypes.DOUBLED_TWO_WORD_PHRASE,
     // DROP: motif.TokenTypes.MISSING_LAST_WORD,
     // INPUT: motif.TokenTypes.DOUBLED,

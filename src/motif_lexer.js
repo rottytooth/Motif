@@ -94,7 +94,7 @@ motif.lexer = function(writeCode, writeResponse, runtime) {
         writeToScreen();
     }
 
-    verifyMotif = (motifblocks, line, linenum) => {
+    const verifyMotif = (motifblocks, line, linenum) => {
         if (motifblocks.length < 3) {
             throw new SyntaxError("Motif must be at least three words", linenum, line);
         }
@@ -173,9 +173,9 @@ motif.lexer = function(writeCode, writeResponse, runtime) {
         const motifblocks = line.split(" ").map(function(word){
             return word.length;
         });
-        verifyMotif(motifblocks, line, linenum);
-        this.motifs.push(motifblocks);
-        return motif.Token(motif.TokenTypes.SETMOTIF, line, motifblocks, linenum, this.motifs.length - 1);
+        verifyMotif([...motifblocks], line, linenum);
+        this.motifs.push([...motifblocks]);
+        return motif.Token(motif.TokenTypes.SETMOTIF, line, [...motifblocks], linenum, this.motifs.length - 1);
     }
 
     // response from the lexer

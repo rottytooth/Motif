@@ -51,7 +51,7 @@
             let stackbox = document.getElementById("stacks");
             let text = "STACKS<br/><br/>";
             for(let i = 0; i < runtime.stacks.length; i++) {
-                text += String.fromCharCode('A'.charCodeAt(0) + i) + " [";
+                text += motif.GetStackName(i) + " [";
                 for(let j = 0; j < runtime.stacks[i].length; j++) {
                     if (j > 0) text += " ";
                     text += runtime.stacks[i][j];
