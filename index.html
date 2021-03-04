@@ -35,6 +35,7 @@
             }
             main.appendChild(newDiv);
             if (cursorMove) placeCursor();
+            updateShadow();
         }
 
         function writeResponse(content, error = false) {
@@ -45,6 +46,7 @@
             }
             newDiv.innerText = content;
             main.appendChild(newDiv);
+            updateShadow();
         }
 
         function updateStacks() {
@@ -59,10 +61,18 @@
                 text += "]<br/>";
             }
             stackbox.innerHTML = text;
+
+            let stackbox_shadow = document.getElementById("stacks_shadow");
+            stackbox_shadow.innerHTML = stackbox.innerHTML;
         }
 
         function updateOutput(content) {
+        }
 
+        function updateShadow() {
+            let main = document.getElementById("main");
+            let main_shadow = document.getElementById("main_shadow");
+            main_shadow.innerHTML = main.innerHTML;
         }
 
         window.onload = function(e) {
@@ -103,8 +113,13 @@
     <div id="cover_grad" class="cover"></div>
     <div id="cover_color" class="cover"></div>
     <div id="cover" class="cover"></div>
-    <div id="stack_blocker"></div>
-    <div id="stacks"></div>
-    <div id="main"><div></div><div>motif repl console. enter command, or <a href="rules.html">learn the rules here</a></div></div>
+    <div id="stack_blocker" class="stack_blocker"></div>
+    <div id="stacks" class="stacks"></div>
+    <div id="main" class="main"><div></div><div>motif repl console. enter command, or <a href="rules.html">learn the rules here</a></div></div>
+    <div id="shadows">
+        <div id="stack_blocker_shadow" class="stack_blocker"></div>
+        <div id="stacks_shadow" class="stacks"></div>
+        <div id="main_shadow" class="main"></div>
+    </div>
 </body>
 </html>

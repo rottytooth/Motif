@@ -16,30 +16,34 @@ p {
     font-family: zig;
     src: url(zig_____.ttf);
 }
-#stacks {
+.stacks {
     width: 25%;
     border: #000066 5px solid;
-    height: 90%;
     filter: blur(0.8px);
     padding: 10px;
     position: fixed;
     left: 10px;
     top: 10px;
+    bottom: 10px;
     font-family: zig;
     color: #000066;
 }
-#stack_blocker {
+#stacks_shadow {
+    z-index: 1000;
+    left: 16px;
+    top: 16px;
+}
+.stack_blocker {
     width: 25%;
     height: 90%;
-    margin: 10;
     padding: 0;
-    margin-top: 20;
-    margin-bottom: 20;
+    margin-top: 20px;
+    margin-bottom: 20px;
     float: left;
 }
 
 /* main columns */
-#main {
+.main {
     padding-top: 30px;
     padding-left: 0;
     margin-left: 0;
@@ -52,24 +56,24 @@ p {
     filter: blur(0.8px);
     float: left;
 }
-#main > div {
+.main > div {
     height: 100%;
     min-height: 100%;
     margin: 0;
     line-height: 150%;
 }
-#main > div:nth-child(2n+1) {
+.main > div:nth-child(2n+1) {
     direction:rtl;
     color: #000066;
     text-indent: -40px;
     margin-right: 40px;
 }
-#main > div:nth-child(2n+0) {
+.main > div:nth-child(2n+0) {
     color: #000066;
     font-family: zig;
     padding-left: 20px; 
 }
-#main > div.error {
+.main > div.error {
     color: #660000;
 }
 
@@ -94,50 +98,36 @@ p {
     opacity: .2;
 }
 
+#shadows {
+    width: 100%;
+    height: 100%;
+    opacity: 0.08;
+    margin-left: 6px;
+    margin-top: 6px;
+    pointer-events: none;
+    position: absolute;
+    margin-right: 6px;
+    margin-bottom: 6px;
+    filter: blur(0.8px);
+}
+
 .blinking-cursor {
     color: #000066;
     animation: 1s blink step-end infinite;
     margin-right: -4px;
 }
-/* .rblink {
-    color: #660000;
-    animation: 1s rblink step-end infinite;
-}
-.gblink {
-    color: #006600;
-    animation: 1s gblink step-end infinite;
-} */
 .bblink {
     color: #000066;
     animation: 1s bblink step-end infinite;
 }
 
-  
-  /* @keyframes "rblink" {
-    from, to {
-        color: #660000;
-    }
-    50% {
-        color: transparent;
-    }
-  } */
-
-  /* @keyframes "gblink" {
-    from, to {
-        color: #006600;
-    }
-    50% {
-        color: transparent;
-    }
-  }*/
-
-  @keyframes "bblink" {
+@keyframes "bblink" {
     from, to {
         color: #000066;
     }
     50% {
         color: transparent;
     }
-  } 
+} 
 
 
