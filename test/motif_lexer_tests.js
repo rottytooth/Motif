@@ -55,7 +55,7 @@ describe( "Lexer tests", () => {
 
         it("symmetric motif", () => {
             lexer = new motif.motif.lexer(writeCode, writeResponse);
-            lexer.readTextBlock("* ** *** ** *");
+            lexer.readTextBlock("* ** ***** ** *");
             assert(lexer.motifs.length === 0);
             assert(has_error == true);
             assert(lexer.error.message.includes("symmetrical"));
@@ -91,6 +91,19 @@ describe( "Lexer tests", () => {
             assert(lexer.motifs.length === 1);
             assert(has_error == false);
             assert(lexer.tokens[lexer.tokens.length-1].stackname = 'A');
+        } );
+
+        it("check for motif word sizes", () => {
+            lexer = new motif.motif.lexer(writeCode, writeResponse);
+            lexer.readTextBlock("*** ** *");
+            assert(lexer.motifs.length === 1);
+            assert(has_error == false);
+            assert(lexer.tokens[lexer.tokens.length-1].stackname = 'A');
+
+            lexer.readTextBlock("** * *** ** *");
+            assert(lexer.motifs.length === 1);
+            assert(has_error == true);
+            assert(lexer.error.message.includes("like"));
         } );
     } );
 

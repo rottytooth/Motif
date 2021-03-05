@@ -131,7 +131,7 @@ motif.lexer = function(writeCode, writeResponse, runtime) {
     this.readCharacter = function(e) {
 
         if (e.keyCode && e.keyCode === 8) {
-            currentline.slice(0, -1); // backspace
+            currentline = currentline.slice(0, -1); // backspace
             inspace = false;
             writeToScreen();
             return;
@@ -192,6 +192,9 @@ motif.lexer = function(writeCode, writeResponse, runtime) {
         if (!motif.isPrime(motifblocks.length)) {
             // is not prime, invalid to be motif
             throw new SyntaxError("Motif must have a prime-number count of words", linenum, line);
+        }
+        if (motifblocks.every(el => el < 5) && motifblocks.length > 3) {
+            throw new SyntaxError("I don't like this motif, do something else", linenum, line);
         }
         // if (!motifs.every(el => el.length < motifblocks.length - 2 || el.length > motifblocks.length + 2))  {
         //     throw new SyntaxError("Motif must be at least two more or two fewer elements than other motifs");
@@ -288,7 +291,7 @@ motif.lexer = function(writeCode, writeResponse, runtime) {
             for(let j = 0; j < token.arguments.length; j++) {
                 if (token.arguments[j] != 0) {
                     if (added == true)  content += ", ";
-                    content += " word " + (j + 1) + " change: " + (token.arguments[j] > 0 ? "+" : "") + token.arguments[j];
+                    content += " word " + (j + 1) + " " + (token.arguments[j] > 0 ? "+" : "") + token.arguments[j];
                     added = true;
                 }
             }

@@ -89,6 +89,7 @@
         };
         function stopKeyProp(e) {
             if (e.keyCode === 8) { // 8 = backspace
+                lexer.readCharacter(e, "main"); // handle backspace here bc won't make it to in logKey
                 e.preventDefault();
             }
         }
