@@ -36,11 +36,11 @@ motif.RuntimeError = function(message) {
 
 // The set of variations on a motif
 motif.TokenTypes = {
-    MOTIF: 'motif',
-    SETMOTIF: 'set motif',
-    ROTATED: 'rotate',
-    REVERSED: 'reversed',
-    SIZE_CHANGE: 'size change'
+    MOTIF: 'mot',
+    SETMOTIF: 'set',
+    ROTATED: '<span class="sym_b">\u21BB</span>',
+    REVERSED: '<span class="sym">\u21C4</span>',
+    SIZE_CHANGE: '<span class="sym">\u2213</span>'
 };
 
 // The commands and the TokenTypes that signify them

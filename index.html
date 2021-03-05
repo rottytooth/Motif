@@ -8,7 +8,6 @@
     <script type="text/javascript">
 
         var lexer, runtime;
-        var opacity = .3;
 
         function placeCursor() {
             var oldcursors = document.getElementsByClassName("blinking-cursor");
@@ -18,14 +17,13 @@
 
             let currBlock = document.getElementById("main").lastChild;
             let cursor = document.createElement('span');
-            cursor.setAttribute("class","blinking-cursor bblink");
+            cursor.setAttribute("class","blinking-cursor");
             cursor.innerText = "\u2502";
             currBlock.appendChild(cursor);
         }
 
 
-        // This simply adds a new div to main. If it is an odd numbered div, it will be content. If it is an even numbered div, it will be response from the lexer.
-        // TODO: this should take an argument to make sure it's an error or not and actually check
+        // TODO: this should check it's in an odd div, and response in an even one
         function writeCode(content, cursorMove = false, isNewLine = true) {
             document.getElementById("main");
             var newDiv = document.createElement("div");
@@ -44,11 +42,12 @@
             if (error) {
                 newDiv.classList.add("error");
             }
-            newDiv.innerText = content;
+            newDiv.innerHTML = content;
             main.appendChild(newDiv);
             updateShadow();
         }
 
+        // current state of stacks
         function updateStacks() {
             let stackbox = document.getElementById("stacks");
             let text = "STACKS<br/><br/>";
@@ -66,6 +65,7 @@
             stackbox_shadow.innerHTML = stackbox.innerHTML;
         }
 
+        // output from the program
         function updateOutput(content) {
         }
 
@@ -83,13 +83,14 @@
             runtime = new motif.runtime(updateStacks, updateOutput);
             lexer = new motif.lexer(writeCode, writeResponse, runtime);
 
-            // setInterval(updateBackground, 500);
+            setInterval(updateBackground, 500);
 
             writeCode("");
+            placeCursor();
         };
         function stopKeyProp(e) {
             if (e.keyCode === 8) { // 8 = backspace
-                lexer.readCharacter(e, "main"); // handle backspace here bc won't make it to in logKey
+                lexer.readCharacter(e, "main"); // handle backspace here bc won't make it to logKey
                 e.preventDefault();
             }
         }
@@ -102,11 +103,15 @@
             lexer.readTextBlock(paste, "main");
         }
 
-        var ang = 90;
+        var opacity = .08;
+        var mar = 6.0;
         function updateBackground() {
-            ang++;
-            document.getElementById("cover_color").style.background = "linear-gradient(" + ang + "deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 35%, rgba(0,212,255,1) 100%);"
+            // ang++;
+            // document.getElementById("cover_color").style.background = "linear-gradient(" + ang + "deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 35%, rgba(0,212,255,1) 100%);"
 
+            shadows = document.getElementById("shadows");
+            shadows.style.margin =  mar + (0.3 - (Math.floor(Math.random() * 8) + 1) / 8.0) + "px";
+            shadows.style.opacity = opacity + Math.random() / 100.0;
         }
     </script>
 </head>

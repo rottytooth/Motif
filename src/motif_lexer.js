@@ -184,7 +184,7 @@ motif.lexer = function(writeCode, writeResponse, runtime) {
     // response from the lexer
     const writeParseBlock = (token) => {
         let content = "";
-        content += token.tokentype + " " + token.stackname;
+        content += token.stackname + " " + token.tokentype;
         if (token.tokentype == motif.TokenTypes.SETMOTIF) {
             content += ":" + token.blocklist.join(" ");
         }
