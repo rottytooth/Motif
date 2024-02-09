@@ -353,3 +353,5 @@ MigrationBackup/
 .ionide/
 .nyc_output
 package-lock.json
+
+.DS_Store
