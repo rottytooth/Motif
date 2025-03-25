@@ -2,6 +2,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">    <link href="styles/motif.css" rel="stylesheet" />
+    <title>Motif | Daniel Temkin | Esolangs</title>
     <script type="text/javascript" src="src/motif_utils.js"></script>
     <script type="text/javascript" src="src/motif_lexer.js"></script>
     <script type="text/javascript" src="src/motif_runtime.js"></script>
@@ -27,6 +28,7 @@
         function writeCode(content, cursorMove = false, isNewLine = true) {
             document.getElementById("main");
             var newDiv = document.createElement("div");
+            newDiv.className = "code_block";
             newDiv.innerText = content;
             if (!isNewLine) {
                 main.removeChild(main.lastChild)
@@ -39,6 +41,7 @@
         function writeResponse(content, error = false) {
             document.getElementById("main");
             var newDiv = document.createElement("div");
+            newDiv.className = "resp_block";
             if (error) {
                 newDiv.classList.add("error");
             }
@@ -112,12 +115,20 @@
             shadows = document.getElementById("shadows");
             shadows.style.margin =  mar + (0.3 - (Math.floor(Math.random() * 8) + 1) / 8.0) + "px";
             shadows.style.opacity = opacity + Math.random() / 100.0;
+
+            for (let element of document.getElementsByClassName("code_block")) {
+                element.style.transform = `skew(${Math.random() * 0.3 + 2}deg)`;
+            }
+
+            for (let element of document.getElementsByClassName("resp_block")) {
+                element.style.transform = `skew(${Math.random() * -0.7 - 3}deg)`;
+            }
         }
     </script>
 </head>
 <body>
-    <div id="cover_grad" class="cover"></div>
-    <div id="cover_color" class="cover"></div>
+    <!-- <div id="cover_grad" class="cover"></div>
+    <div id="cover_color" class="cover"></div> -->
     <div id="cover" class="cover"></div>
     <div id="stack_blocker" class="stack_blocker"></div>
     <div id="stacks" class="stacks"></div>

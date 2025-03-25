@@ -8,6 +8,13 @@ body, html {
     min-height: 100%;
     min-width: 100%;
 }
+body {
+    border-radius: 5%;
+}
+/* body {
+    -moz-transform: scale(1.3);
+    zoom:130%;
+} */
 p {
     margin-top:0;
     margin-bottom:0
@@ -18,7 +25,7 @@ p {
 }
 .stacks {
     width: 25%;
-    border: #000066 5px solid;
+    border: #000066 8px solid;
     filter: blur(0.8px);
     padding: 10px;
     position: fixed;
@@ -27,6 +34,9 @@ p {
     bottom: 10px;
     font-family: zig;
     color: #000066;
+    font-size: 125%;
+
+    border-radius: 3%;
 }
 #stacks_shadow {
     z-index: 1000;
@@ -60,7 +70,9 @@ p {
     height: 100%;
     min-height: 100%;
     margin: 0;
-    line-height: 150%;
+    line-height: 175%;
+    font-size: 125%;
+    transform-origin: bottom;
 }
 .main > div:nth-child(2n+1) {
     direction:rtl;
@@ -99,7 +111,8 @@ p {
 }
 
 #shadows {
-    width: 100%;
+    width: 95%;
+    left: 2.5%;
     height: 100%;
     opacity: 0.08;
     margin-left: 6px;
