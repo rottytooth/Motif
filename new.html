@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link href="styles/motif_new.css" rel="stylesheet" />
+    <script type="text/javascript" src="src/new_motif.js"></script>
+    <script type="text/javascript">
+    function load_colors() {
+        let content = document.getElementById("content");
+        for (var i = 0; i < 1000; i++) { 
+            let rand = Math.floor(Math.random() * motif.PALETTE.length);
+            
+            let nspan = document.createElement('span')
+            nspan.style.cssText += 'color:' + motif.PALETTE[rand]
+            nspan.innerHTML = "\u2588";
+            content.appendChild(nspan);
+
+            if (i+1 % 80 == 0) {
+                let sspan = document.createElement('span')
+                sspan.innerHTML = " ";
+                content.appendChild(sspan);
+            }
+        }
+    }
+    window.onload = function() {
+        load_colors();
+    };
+    </script>
+</head>
+<body>
+    <div id="cover" class="cover"></div>
+    <div id="content"></div>
+</body>
+</html>

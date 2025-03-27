@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">    
+    <link href="styles/motif2.css" rel="stylesheet" />
+    <script type="text/javascript" src="src/motif_utils.js"></script>
+    <script type="text/javascript" src="src/motif_lexer.js"></script>
+    <script type="text/javascript" src="src/motif_runtime.js"></script>
+    <script type="text/javascript">
+
+        var lexer, runtime;
+
+        function placeCursor() {
+            var oldcursors = document.getElementsByClassName("blinking-cursor");
+            for (var i = oldcursors.length - 1; i >= 0; i--) {
+                oldcursors[i].remove();
+            }
+
+            let currBlock = document.getElementById("main").lastChild;
+            let cursor = document.createElement('span');
+            cursor.setAttribute("class","blinking-cursor");
+            cursor.innerText = "\u2502";
+            currBlock.appendChild(cursor);
+        }
+
+
+        // TODO: this should check it's in an odd div, and response in an even one
+        function writeCode(content, cursorMove = false, isNewLine = true) {
+            document.getElementById("main");
+            var newDiv = document.createElement("div");
+            newDiv.className = "code_block";
+            newDiv.innerText = content;
+            if (!isNewLine) {
+                main.removeChild(main.lastChild)
+            }
+            main.appendChild(newDiv);
+            if (cursorMove) placeCursor();
+        }
+
+        function writeResponse(content, error = false) {
+            document.getElementById("main");
+            var newDiv = document.createElement("div");
+            newDiv.className = "resp_block";
+            if (error) {
+                newDiv.classList.add("error");
+            }
+            newDiv.innerHTML = content;
+            main.appendChild(newDiv);
+        }
+
+        // current state of stacks
+        function updateStacks() {
+            let stackbox = document.getElementById("stacks");
+            let text = "STACKS<br/><br/>";
+            for(let i = 0; i < runtime.stacks.length; i++) {
+                text += motif.GetStackName(i) + " [";
+                for(let j = 0; j < runtime.stacks[i].length; j++) {
+                    if (j > 0) text += " ";
+                    text += runtime.stacks[i][j];
+                }
+                text += "]<br/>";
+            }
+            stackbox.innerHTML = text;
+        }
+
+        // output from the program
+        function updateOutput(content) {
+        }
+
+        window.onload = function(e) {
+            document.addEventListener('keypress', logKey);
+            document.addEventListener('keydown', stopKeyProp)
+            document.addEventListener('paste', readPastedCode)
+
+            runtime = new motif.runtime(updateStacks, updateOutput);
+            lexer = new motif.lexer(writeCode, writeResponse, runtime);
+
+            writeCode("");
+            placeCursor();
+        };
+        function stopKeyProp(e) {
+            if (e.keyCode === 8) { // 8 = backspace
+                lexer.readCharacter(e, "main"); // handle backspace here bc won't make it to logKey
+                e.preventDefault();
+            }
+        }
+        function logKey(e) {
+            lexer.readCharacter(e, "main");
+            e.preventDefault();
+        }
+        function readPastedCode(e) {
+            let paste = (e.clipboardData || window.clipboardData).getData('text');
+            lexer.readTextBlock(paste, "main");
+        }
+
+    </script>
+</head>
+<body>
+    <!-- <div id="cover_grad" class="cover"></div>
+    <div id="cover_color" class="cover"></div> -->
+    <div id="cover" class="cover"></div>
+    <div id="stack_blocker" class="stack_blocker"></div>
+    <div id="stacks" class="stacks"></div>
+    <div id="main" class="main"><div></div><div>motif repl console. enter command, or <a href="rules.html">learn the rules here</a></div></div>
+</body>
+</html>
