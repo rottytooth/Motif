@@ -8,10 +8,11 @@
     function load_colors() {
         let content = document.getElementById("content");
         for (var i = 0; i < 1000; i++) { 
-            let rand = Math.floor(Math.random() * motif.PALETTE.length);
+            // let rand = Math.floor(Math.random() * motif.PALETTE.length);
             
             let nspan = document.createElement('span')
-            nspan.style.cssText += 'color:' + motif.PALETTE[rand]
+            nspan.style.cssText += 'color:' + motif.PALETTE[i % motif.PALETTE.length]
+            // nspan.style.cssText += 'color:' + motif.PALETTE[rand]
             nspan.innerHTML = "\u2588";
             content.appendChild(nspan);
 

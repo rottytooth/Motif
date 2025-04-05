@@ -10,13 +10,60 @@
 
         var lexer, runtime;
 
-        function placeCursor() {
+        var stack_list = [];
+
+        // OLD:
+        // var palette = [
+        //     "#382b69",
+        //     "#4f3a00",
+        //     "#7e3722",
+        //     "#4c4a36",
+        //     "#7f3f74",
+        //     "#825318",
+        //     "#70628e",
+        //     "#747053",
+        //     "#5e952b",
+        //     "#a96946", // might be the one to cut
+        //     "#7abfc7",
+        //     "#6fa781",
+        //     "#9a966f",
+        //     "#bcc149",
+        //     "#9bcd58",
+        //     "#000000"
+        //     ];
+
+        var palette = [
+            "#352e3e",
+            "#453a0a",
+            "#68421c",
+            "#484635",
+            "#684852",
+            "#72591d",
+            "#69616d",
+            "#6d6a52",
+            "#748e37",
+            "#8e6d3e",
+            "#99b8a9",
+            "#85a07c",
+            "#989572",
+            "#bdbe5b",
+            "#adc563",
+            "#000000"
+            ];
+
+        function placeCursor(add_space) {
             var oldcursors = document.getElementsByClassName("blinking-cursor");
             for (var i = oldcursors.length - 1; i >= 0; i--) {
                 oldcursors[i].remove();
             }
 
             let currBlock = document.getElementById("main").lastChild;
+            if (add_space) {
+                let space = document.createElement('span');
+                space.className = "sep_block"; // spacer
+                space.innerText = " ";
+                currBlock.appendChild(space);
+            }
             let cursor = document.createElement('span');
             cursor.setAttribute("class","blinking-cursor");
             cursor.innerText = "\u2502";
@@ -24,30 +71,122 @@
         }
 
 
-        // TODO: this should check it's in an odd div, and response in an even one
         function writeCode(content, cursorMove = false, isNewLine = true) {
+
             document.getElementById("main");
             var newDiv = document.createElement("div");
             newDiv.className = "code_block";
-            newDiv.innerText = content;
+
+            let is_first = true;
+
+            content.split(" ").forEach(element => {
+                if (element.length > 0) {
+                    if (!is_first) {
+                        let spacer = document.createElement("div");
+                        spacer.className = "sep_block"; // spacer
+                        newDiv.appendChild(spacer);
+                    }
+                    is_first = false;
+
+                    let currword = document.createElement("div");
+                    currword.classList.add('word');
+                    currword.innerText = element.length;
+                    currword.style.width = element.length * 20 + "px";
+                    newDiv.appendChild(currword);
+                }
+            });
+
             if (!isNewLine) {
-                main.removeChild(main.lastChild)
+                main.removeChild(main.lastChild);
             }
+
+            if (main.childElementCount % 2 != 0) {
+                var spacer = document.createElement("span");
+                spacer.className = "sep_block"; // spacer
+                main.appendChild(spacer);
+            }
+
             main.appendChild(newDiv);
-            if (cursorMove) placeCursor();
-            updateShadow();
+            if (cursorMove) placeCursor(content.slice(-1) == " ");
         }
 
-        function writeResponse(content, error = false) {
-            document.getElementById("main");
-            var newDiv = document.createElement("div");
-            newDiv.className = "resp_block";
+        function writeResponse(content, token, error = false) {
+            // if there's a new response, then let's check that the code block has been formatted
+
+            let main = document.getElementById("main");
+            var resp_div = document.createElement("div");
+            resp_div.className = "resp_block";
             if (error) {
-                newDiv.classList.add("error");
+                resp_div.classList.add("error");
+                let last_code_block = main.children[main.children.length - 1];
+                let numbers = Array.from(last_code_block.children).filter(x => x.className == "word").map(x => x.innerText);
+                last_code_block.innerHTML = "";
+                if (last_code_block.className == "code_block") {
+                    writeBlocks(main.children[main.children.length - 1], token, ["var(--main-blue)"], numbers, 0);
+                }
+            } else {
+
+                if (token.tokentype == motif.TokenTypes.SETMOTIF) {
+                    
+                    // we are adding a new stack
+                    stack_list.push({
+                        name: token.stackname,
+                        size: token.blocklist.length,
+                        start: stack_list.reduce((p, a) => p + a.size, 0)
+                    });
+                }
+                let last_code_block = main.children[main.children.length - 1];
+                let numbers = [];
+                let curr_stack = stack_list.find(x => x.name == token.stackname);
+
+                if (last_code_block.className == "code_block") {
+                    let code = last_code_block.innerText;
+                    let curr_word = 0;
+
+                    let numbers = Array.from(last_code_block.children).filter(x => x.className == "word").map(x => x.innerText);
+                    last_code_block.innerHTML = "";
+
+                    let rot_offset = 0;
+
+                    let palette_to_use = palette.slice(curr_stack.start, curr_stack.start + curr_stack.size);
+
+                    if (token.tokentype == motif.TokenTypes.ROTATED) {
+                        rot_offset = token.arguments;
+                    }
+                    if (token.tokentype == motif.TokenTypes.REVERSED) {
+                        palette_to_use = palette_to_use.reverse();
+                    }
+                    writeBlocks(last_code_block, token, palette_to_use, numbers, rot_offset);
+                }
             }
-            newDiv.innerHTML = content;
-            main.appendChild(newDiv);
-            updateShadow();
+            resp_div.innerHTML = content;
+
+            if (main.childElementCount % 2 == 0) {
+                var spacer = document.createElement("span");
+                spacer.className = "sep_block"; // spacer
+                main.appendChild(spacer);
+            }
+
+            main.appendChild(resp_div);
+        }
+
+        function writeBlocks(last_code_block, token, palette, numbers, rot_offset) {
+            let n = 0;
+            numbers.forEach(element => {
+                if (n > 0) {
+                    let sep_div = document.createElement("span");
+                    sep_div.className = "sep_block";
+                    sep_div.innerText = " ";
+                    last_code_block.appendChild(sep_div);
+                }
+                let stack_div = document.createElement("div");
+                stack_div.className = "color_block";
+                stack_div.style.backgroundColor = palette[(n + rot_offset) % palette.length];
+                stack_div.innerText = element;
+                last_code_block.appendChild(stack_div);
+                n++;
+            });
+            
         }
 
         // current state of stacks
@@ -63,19 +202,10 @@
                 text += "]<br/>";
             }
             stackbox.innerHTML = text;
-
-            let stackbox_shadow = document.getElementById("stacks_shadow");
-            stackbox_shadow.innerHTML = stackbox.innerHTML;
         }
 
         // output from the program
         function updateOutput(content) {
-        }
-
-        function updateShadow() {
-            let main = document.getElementById("main");
-            let main_shadow = document.getElementById("main_shadow");
-            main_shadow.innerHTML = main.innerHTML;
         }
 
         window.onload = function(e) {
@@ -86,11 +216,10 @@
             runtime = new motif.runtime(updateStacks, updateOutput);
             lexer = new motif.lexer(writeCode, writeResponse, runtime);
 
-            setInterval(updateBackground, 500);
-
             writeCode("");
             placeCursor();
         };
+
         function stopKeyProp(e) {
             if (e.keyCode === 8) { // 8 = backspace
                 lexer.readCharacter(e, "main"); // handle backspace here bc won't make it to logKey
@@ -106,37 +235,36 @@
             lexer.readTextBlock(paste, "main");
         }
 
-        var opacity = .08;
-        var mar = 6.0;
-        function updateBackground() {
-            // ang++;
-            // document.getElementById("cover_color").style.background = "linear-gradient(" + ang + "deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 35%, rgba(0,212,255,1) 100%);"
-
-            shadows = document.getElementById("shadows");
-            shadows.style.margin =  mar + (0.3 - (Math.floor(Math.random() * 8) + 1) / 8.0) + "px";
-            shadows.style.opacity = opacity + Math.random() / 100.0;
-
-            for (let element of document.getElementsByClassName("code_block")) {
-                element.style.transform = `skew(${Math.random() * 0.3 + 2}deg)`;
-            }
-
-            for (let element of document.getElementsByClassName("resp_block")) {
-                element.style.transform = `skew(${Math.random() * -0.7 - 3}deg)`;
-            }
-        }
     </script>
 </head>
 <body>
-    <!-- <div id="cover_grad" class="cover"></div>
-    <div id="cover_color" class="cover"></div> -->
-    <div id="cover" class="cover"></div>
-    <div id="stack_blocker" class="stack_blocker"></div>
-    <div id="stacks" class="stacks"></div>
-    <div id="main" class="main"><div></div><div>motif repl console. enter command, or <a href="rules.html">learn the rules here</a></div></div>
-    <div id="shadows">
-        <div id="stack_blocker_shadow" class="stack_blocker"></div>
-        <div id="stacks_shadow" class="stacks"></div>
-        <div id="main_shadow" class="main"></div>
+    <div id="cover_stripes"></div>
+    <div id="cover_static"></div>
+    <div id="content">
+        <div id="inner_content">
+            <div id="menu">
+                <div id="menu_header">
+                    <div style="text-align: center; width: 100%">&#x21C4; MOTIF &#x21BB;</div>
+                    &nbsp;<br/>
+                    Daniel Temkin, 2025<br/>
+                    <span style="font-size: 80%">
+                    from <a href="https://mitpress.mit.edu/9780262553087/forty-four-esolangs/">Forty-Four Esolangs</a> (2025, MIT Press)</span>
+                </div>
+                <div id="options">
+                    <div id="loaders">
+                        MENU<br/>
+                        <input type="button" id="load_program" value="load program" onclick="runtime.loadProgram()" /><br/>
+                        <select id="load_example">
+                            <option value="none">load example</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="stacks">STATE</div>
+                <div id="output">OUTPUT</div>
+            </div>
+            <div id="menu_blocker"></div>
+            <div id="main" class="main"><div></div><div class="header">motif repl console. enter command, or <a href="rules.html">learn the rules here</a></div></div>
+        </div>
     </div>
 </body>
 </html>

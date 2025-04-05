@@ -36,11 +36,11 @@ motif.RuntimeError = function(message) {
 
 // The set of variations on a motif
 motif.TokenTypes = {
-    MOTIF: 'motif',
-    SETMOTIF: 'set motif',
-    ROTATED: 'rotate',
-    REVERSED: 'reversed',
-    SIZE_CHANGE: 'size change'
+    MOTIF: 'mot',
+    SETMOTIF: 'set',
+    ROTATED: '<span class="sym_b">\u21BB</span>',
+    REVERSED: '<span class="sym">\u21C4</span>',
+    SIZE_CHANGE: '<span class="sym">\u2213</span>'
 };
 
 // The commands and the TokenTypes that signify them
@@ -200,7 +200,7 @@ motif.lexer = function(writeCode, writeResponse, runtime) {
         //     throw new SyntaxError("Motif must be at least two more or two fewer elements than other motifs");
         // }
         if (JSON.stringify(motifblocks) === JSON.stringify(motifblocks.slice().reverse())) {
-            throw new SyntaxError("Motif cannot be symmetrical!");
+            throw new SyntaxError("Motif cannot be symmetrical");
         }
     } 
 
@@ -272,7 +272,7 @@ motif.lexer = function(writeCode, writeResponse, runtime) {
     // response from the lexer
     const writeParseBlock = (token) => {
         let content = "";
-        content += token.tokentype + " " + token.stackname;
+        content += token.stackname + " " + token.tokentype;
         if (token.tokentype == motif.TokenTypes.SETMOTIF) {
             content += ":" + token.blocklist.join(" ");
         }
@@ -291,7 +291,7 @@ motif.lexer = function(writeCode, writeResponse, runtime) {
             for(let j = 0; j < token.arguments.length; j++) {
                 if (token.arguments[j] != 0) {
                     if (added == true)  content += ", ";
-                    content += " word " + (j + 1) + " " + (token.arguments[j] > 0 ? "+" : "") + token.arguments[j];
+                    content += " " + (j + 1) + " " + (token.arguments[j] > 0 ? "+" : "") + token.arguments[j];
                     added = true;
                 }
             }

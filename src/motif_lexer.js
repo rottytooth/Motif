@@ -76,17 +76,25 @@ motif.lexer = function(writeCode, writeResponse, runtime) {
                 currentline = ""; // in case it didn't clear before the error
                 if (e instanceof SyntaxError) {
                     this.error = e;
-                    writeResponse(e, true);
+                    writeResponse(e, null, true);
                 }
                 else {
                     this.error = e;
-                    writeResponse("Oh shit! Internal Error: " + e, true);
+                    writeResponse("Oh shit! Internal Error: " + e, null, true);
                 }
             }
             inspace = true;
             writeCode("", true); // starts a new line
             return; // we're writing through the writeResponse() and writeCode(), so no reason to reason to let it get to writeToScreen() below
         } 
+        if (e > '0' && e <= '9') {
+            for (let a = 0; a < parseInt(e); a++) {
+                currentline  += "*";
+            }
+            inspace = false;
+            writeToScreen();
+            return;
+        }
 
         // default: any other character
         currentline += "*";
@@ -112,7 +120,7 @@ motif.lexer = function(writeCode, writeResponse, runtime) {
         //     throw new SyntaxError("Motif must be at least two more or two fewer elements than other motifs");
         // }
         if (JSON.stringify(motifblocks) === JSON.stringify(motifblocks.slice().reverse())) {
-            throw new SyntaxError("Motif cannot be symmetrical!");
+            throw new SyntaxError("Motif cannot be symmetrical");
         }
     } 
 
@@ -186,7 +194,7 @@ motif.lexer = function(writeCode, writeResponse, runtime) {
         let content = "";
         content += token.stackname + " " + token.tokentype;
         if (token.tokentype == motif.TokenTypes.SETMOTIF) {
-            content += ":" + token.blocklist.join(" ");
+            content += ": " + token.blocklist.join(" ");
         }
         if (token.tokentype == motif.TokenTypes.ROTATED) {
             content += " " + (token.arguments + 1);
@@ -203,33 +211,17 @@ motif.lexer = function(writeCode, writeResponse, runtime) {
             for(let j = 0; j < token.arguments.length; j++) {
                 if (token.arguments[j] != 0) {
                     if (added == true)  content += ", ";
-                    content += " word " + (j + 1) + " " + (token.arguments[j] > 0 ? "+" : "") + token.arguments[j];
+                    content += " " + (j + 1) + " " + (token.arguments[j] > 0 ? "+" : "") + token.arguments[j];
                     added = true;
                 }
             }
         }
-        writeResponse(content);
+        writeResponse(content, token, false);
     }
 
     // output function for left column (user input)
     const writeToScreen = () => {
-        let strResponse = "";
-        let isNewLine = false;
-        
-        for (let i = 0; i < currentline.length; i++) {
-            switch(currentline[i]) {
-                case "*":
-                    strResponse += "\u2588"; // block
-                    break;
-                case " ":
-                    strResponse += "\u2003"; // em space
-                    break;
-                case "\n":
-                    isNewLine = true;
-                    currentline = "";
-                    break;
-            }
-        }
-        if (typeof writeCode != 'undefined') writeCode(strResponse, true, isNewLine);
+        let isNewLine = (currentline.indexOf('\n') > -1);
+        if (typeof writeCode != 'undefined') writeCode(currentline, true, isNewLine);
     }
 }
