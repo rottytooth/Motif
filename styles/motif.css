@@ -234,7 +234,7 @@ select::-ms-expand { display: none; }
 .blinking-cursor {
     color: var(--main-blue);
     animation: 1s blink step-end infinite;
-    padding-left: -4px;
+    margin-right: -4px;
 }
 
 #main > .resp_block, #main > .resp_error, .header {
