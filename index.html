@@ -68,6 +68,8 @@
             cursor.setAttribute("class","blinking-cursor");
             cursor.innerText = "\u2502";
             currBlock.appendChild(cursor);
+
+            currBlock.scrollIntoView();
         }
 
 
@@ -132,7 +134,7 @@
                     stack_list.push({
                         name: token.stackname,
                         size: token.blocklist.length,
-                        start: stack_list.reduce((p, a) => p + a.size, 0)
+                        start: stack_list.reduce((p, a) => p + a.size, 0) % palette.length
                     });
                 }
                 let last_code_block = main.children[main.children.length - 1];
@@ -149,6 +151,11 @@
                     let rot_offset = 0;
 
                     let palette_to_use = palette.slice(curr_stack.start, curr_stack.start + curr_stack.size);
+
+                    if (palette_to_use.length < curr_stack.size) {
+                        let extra = curr_stack.size - palette_to_use.length;
+                        palette_to_use = palette_to_use.concat(palette.slice(0, extra));
+                    }
 
                     if (token.tokentype == motif.TokenTypes.ROTATED) {
                         rot_offset = token.arguments;
@@ -262,8 +269,9 @@
                 <div id="stacks">STATE</div>
                 <div id="output">OUTPUT</div>
             </div>
-            <div id="menu_blocker"></div>
-            <div id="main" class="main"><div></div><div class="header">motif repl console. enter command, or <a href="rules.html">learn the rules here</a></div></div>
+            <div id="main_holder">
+            <div id="main"><div></div><div class="header">motif repl console. enter command, or <a href="rules.html">learn the rules here</a></div></div>
+            </div>  
         </div>
     </div>
 </body>

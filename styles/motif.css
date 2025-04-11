@@ -11,35 +11,24 @@
     --out-front: #fff;
 }
 
-:old {
-    --main-blue: #212121;
-    --main-back: #8ac9c5;
-    --stacks-back: #b3b757;
-    --menu-head: #f0f078;
-    --opt-back: #f0f078;
-    --menu-back: #b3b757;
-    --error: #660000;
-    --out-back: #7f3f74;
-    --out-front: #fff;
-}
-
 body, html {
     margin: 0;
     padding: 0;
-    width: 100%;
-    height: 100%;
-    overflow-x: hidden;
+    width: 100vw;
+    height: 100vh;
     background-color: #eee;
-    min-height: 100%;
-    min-width: 100%;
+    min-height: 100vh;
+    min-width: 100vw;
+    overflow: hidden;
 }
 body {
     overflow-y: hidden;
     filter: blur(0.3px);
+    max-width: 100vw;
 }
 /* body {
-    -moz-transform: scale(1.3);
-    zoom:130%;
+    -moz-transform: scale(.99);
+    zoom:99%;    
 } */
 p {
     margin-top:0;
@@ -81,9 +70,11 @@ a:visited  {
     background-color: #212121;
   }
 #inner_content {
-    position: absolute;
-    min-height: calc(100vh - 32px);
-    min-width: calc(100vw - 32px);
+    /* position: absolute; */
+    display: flex;
+    flex-direction: row;
+    height: calc(100vh - 32px);
+    width: calc(100vw - 32px);
     margin: 16px;
     border-radius: 32px;
     box-sizing: border-box; /* Include padding and border in the element's total width and height */
@@ -91,15 +82,14 @@ a:visited  {
     background-color: var(--main-back);
 }
 #menu {
-    width: 25%;
+    flex: 1;
     border-right: var(--main-blue) 6px solid;
-    position: absolute;
     font-family: ibm;
     color: var(--main-blue);
     font-size: 125%;
     overflow-y: hidden;
     background-color: var(--menu-back);
-    height: 100%;
+    /* height: calc(100% - 32px); */
     border-radius: 32px 0 0 32px;
 }
 #menu > div {    
@@ -182,7 +172,6 @@ select::-ms-expand { display: none; }
     transform: scaleX(-1);
     padding-top: 2px;
     padding-bottom: 2px;
-    /* background-color: var(--ochre); */
     font-family: ibm;
     font-weight: normal;
     font-size: 80%;
@@ -191,31 +180,40 @@ select::-ms-expand { display: none; }
     margin-right: 2px;
 }
 /* main columns */
-.main {
-    padding-top: 15px;
+#main_holder {
+    overflow: auto;
+    flex: 3;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+    #main::-webkit-scrollbar {
+        display: none;
+    }
+     
+#main {
+    padding-top: 0;
     padding-left: 0;
     margin-left: 0;
-    width: calc(75% - 50px);
-    grid-template-columns: 50% 50%;
+    grid-template-columns: 1fr 1fr;
     display: grid;
-    grid-row-gap: 0px;
+    grid-row-gap: 0px;    
     grid-column-gap: 5px;
-    float: left;
+    overflow: hidden;
+    padding-bottom: 50px;
 }
-.main > div {
+
+  #main > div {
     padding-top: 5px;
-    height: 100%;
-    min-height: 100%;
     margin: 0;
     line-height: 125%;
     font-size: 125%;
     transform-origin: bottom;
 }
-.main > div:nth-child(2n+1) {
+#main > div:nth-child(2n+1) {
     border-right: 6px solid var(--main-blue);
     padding-right: 5px;
 }
-.main > .code_block {
+#main > .code_block {
     direction:rtl;
     color: var(--main-blue);
     font-size: 150%;
@@ -239,15 +237,15 @@ select::-ms-expand { display: none; }
     padding-left: -4px;
 }
 
-.main > .resp_block, .main > .resp_error, .header {
+#main > .resp_block, #main > .resp_error, .header {
     color: var(--main-blue);
     font-family: ibm;
     padding-top: 10px;
 }
-.main > div.error {
+#main > div.error {
     color: var(--error);
 }
-.main > .header {
+#main > .header {
     font-size: 125%;
     line-height: normal;
     padding-bottom: 10px;
