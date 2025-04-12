@@ -240,6 +240,7 @@ select::-ms-expand { display: none; }
     color: var(--main-blue);
     animation: 1s blink step-end infinite;
     margin-right: -4px;
+    filter: blur(0.5px);
 }
 
 .main > .resp_block, .main > .resp_error, .header {
