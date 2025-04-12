@@ -117,6 +117,7 @@ input[type="button" i] {
     font-family: ibm;
     width: 80%;
     background-color: var(--menu-back);
+    box-shadow: 0 0 2px var(--main-blue);
 }
 input[type="button" i]:hover {
     border: solid #aaffaa 4px;
@@ -136,6 +137,7 @@ select {
     margin-top: 10px;
     font-family: ibm;
     width: 80%;
+    box-shadow: 0 0 2px var(--main-blue);
 }
 
 select::-ms-expand { display: none; }
@@ -143,14 +145,14 @@ select::-ms-expand { display: none; }
 #stacks {
     background-color: var(--stacks-back);
 }
-#options {
+.options {
     background-color: var(--opt-back);
 }
 #output {
     background-color: var(--out-back);
     color: var(--out-front)
 }
-#loaders {
+.loaders {
     width:100%; 
     text-align: center;
     padding-bottom: 10px;
@@ -166,6 +168,7 @@ select::-ms-expand { display: none; }
     font-weight: normal;
     font-size: 80%;
     transform: scaleX(-1);
+    backdrop-filter: blur(10px);
 }
 .sep_block {
     display: inline-block;
@@ -218,6 +221,7 @@ select::-ms-expand { display: none; }
     color: var(--main-blue);
     font-size: 150%;
     min-height: 38px;
+    /* filter: blur(0.25px); */
 }
 .code_block > .word {
     display: inline-block;
@@ -229,6 +233,7 @@ select::-ms-expand { display: none; }
     margin-top: 0px;
     font-size: 20px;
     padding: 2px 0 2px 8px;
+    box-shadow: 0 0 2px var(--main-blue);
 }
 
 .blinking-cursor {
@@ -241,6 +246,7 @@ select::-ms-expand { display: none; }
     color: var(--main-blue);
     font-family: ibm;
     padding-top: 10px;
+    filter: blur(0.25px);
 }
 .main > div.error {
     color: var(--error);
@@ -288,9 +294,10 @@ select::-ms-expand { display: none; }
     position: fixed;
     height: 98vh;
     width: 98vw;
-    opacity: .1;
+    opacity: .15;
     z-index: 1020;
-    transform: scale(.98)
+    transform: scale(.98);
+    filter: blur(3px);
  }
 
 @keyframes blink {

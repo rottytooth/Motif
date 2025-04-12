@@ -180,6 +180,7 @@ function writeBlocks(last_code_block, token, palette, numbers, rot_offset) {
         let stack_div = document.createElement("div");
         stack_div.className = "color_block";
         stack_div.style.backgroundColor = palette[(n + rot_offset) % palette.length];
+        stack_div.style.boxShadow = "0 0 2px " + palette[(n + rot_offset) % palette.length];
         stack_div.innerText = element;
         last_code_block.appendChild(stack_div);
         n++;
@@ -206,6 +207,45 @@ function updateStacks() {
 function updateOutput(content) {
 }
 
+function syncScroll(element1, element2) {
+    element1.addEventListener('scroll', () => {
+        // element2.scrollTo(0,100);
+        updateBurnIn();
+        element2.scrollTo({
+            top: element1.scrollTop,
+            left: 0,
+            behavior: "instant"
+        });
+    });
+}
+
+function updateBurnIn() {
+    // Recursive function
+    function traverseBody(node) {
+        if (node.childNodes.length) {
+
+        // Loop over every child node
+        node.childNodes.forEach(child => {
+            if (child.id != null && child.id != "") {
+                child.id = child.id + "_bn";
+            }
+
+            // If it's a type 1, call the function recursively
+            if (child.nodeType == 1) {
+                traverseBody(child);
+            }
+        });
+        }
+    }
+    var content_bn = document.createElement("div");
+    content_bn.className = "content";
+    content_bn.innerHTML =  content.innerHTML;
+    cover_burnin.innerHTML = "";
+    cover_burnin.appendChild(content_bn);
+    traverseBody(cover_burnin);
+    document.querySelector("#main_holder_bn").scrollTop = document.querySelector("#main_holder").scrollTop;
+}
+
 window.onload = function(e) {
     document.addEventListener('keypress', logKey);
     document.addEventListener('keydown', stopKeyProp)
@@ -216,40 +256,27 @@ window.onload = function(e) {
 
     writeCode("");
     placeCursor();
+
+    updateBurnIn();
+
+    syncScroll(document.querySelector("#main_holder"), document.querySelector("#main_holder_bn"));
 };
 
 function stopKeyProp(e) {
     if (e.keyCode === 8) { // 8 = backspace
         lexer.readCharacter(e, "main"); // handle backspace here bc won't make it to logKey
         e.preventDefault();
+        updateBurnIn();
     }
 }
 function logKey(e) {
-    // Recursive function
-    function traverseBody(node) {
-        if (node.childNodes.length) {
-
-        // Loop over every child node
-        node.childNodes.forEach(child => {
-            child.id = child.id + "_bn";
-
-            // If it's a type 1, call the function recursively
-            if (child.nodeType == 1) {
-                traverseBody(child);
-            }
-        });
-        }
-    }
     lexer.readCharacter(e, "main");
     e.preventDefault();
-    var content_bn = document.createElement("div");
-    content_bn.className = "content";
-    content_bn.innerHTML = content.innerHTML;
-    cover_burnin.appendChild(content_bn);
-    traverseBody(cover_burnin);
+    updateBurnIn();
 }
 function readPastedCode(e) {
     let paste = (e.clipboardData || window.clipboardData).getData('text');
     lexer.readTextBlock(paste, "main");
+    updateBurnIn();
 }
 
