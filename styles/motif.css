@@ -70,7 +70,6 @@ a:visited  {
     background-color: #212121;
   }
 .inner_content {
-    /* position: absolute; */
     display: flex;
     flex-direction: row;
     height: calc(100vh - 32px);
@@ -78,7 +77,6 @@ a:visited  {
     margin: 16px;
     border-radius: 32px;
     box-sizing: border-box; /* Include padding and border in the element's total width and height */
-    /* background-color: #e4e4e4; */
     background-color: var(--main-back);
 }
 .menu {
@@ -94,7 +92,7 @@ a:visited  {
 }
 .menu > div {    
     padding: 10px;
-    border-bottom: var(--main-blue) 4px solid;
+    border-bottom: var(--main-blue) 2px solid;
 }
 .menu_blocker {
     width: 25%;
@@ -140,10 +138,19 @@ select {
     box-shadow: 0 0 2px var(--main-blue);
 }
 
+    select > option {
+        border: solid var(--main-blue) 4px;
+        border-radius: 0;
+        font-size: 100%;
+        margin-top: 10px;
+        font-family: ibm;
+    }
+
 select::-ms-expand { display: none; }
 
-#stacks {
+.stacks {
     background-color: var(--stacks-back);
+    overflow: auto;
 }
 .options {
     background-color: var(--opt-back);
@@ -213,9 +220,12 @@ select::-ms-expand { display: none; }
     transform-origin: bottom;
 }
 .main > div:nth-child(2n+1) {
-    border-right: 6px solid var(--main-blue);
+    border-right: 2px solid #6a634d;
+    /* box-shadow: inset 0px 0px 40px 40px #b79e40; */
     padding-right: 5px;
+    padding-bottom: 5px;
 }
+
 .main > .code_block {
     direction:rtl;
     color: var(--main-blue);
@@ -233,7 +243,7 @@ select::-ms-expand { display: none; }
     margin-top: 0px;
     font-size: 20px;
     padding: 2px 0 2px 8px;
-    box-shadow: 0 0 2px var(--main-blue);
+    box-shadow: 0 0 1px var(--main-blue);
 }
 
 .blinking-cursor {
@@ -270,6 +280,13 @@ select::-ms-expand { display: none; }
     z-index: 1000;
 }
 
+.stacks .color_block {
+    padding: 2px 5px 2px 5px;
+}
+.stacks .sep_block {
+    width: 2px;
+}
+
 @keyframes staticAnimation {
     0%   { background: url('static01.png'); }
     25%  { background: url('static02.png'); }
@@ -295,10 +312,14 @@ select::-ms-expand { display: none; }
     position: fixed;
     height: 98vh;
     width: 98vw;
-    opacity: .15;
+    opacity: .2;
     z-index: 1020;
     transform: scale(.98);
     filter: blur(3px);
+ }
+
+ #cover_burnin .content {
+    background-color: #666;
  }
 
 @keyframes blink {

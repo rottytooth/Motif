@@ -3,26 +3,6 @@ var lexer, runtime;
 
 var stack_list = [];
 
-// OLD:
-// var palette = [
-//     "#382b69",
-//     "#4f3a00",
-//     "#7e3722",
-//     "#4c4a36",
-//     "#7f3f74",
-//     "#825318",
-//     "#70628e",
-//     "#747053",
-//     "#5e952b",
-//     "#a96946", // might be the one to cut
-//     "#7abfc7",
-//     "#6fa781",
-//     "#9a966f",
-//     "#bcc149",
-//     "#9bcd58",
-//     "#000000"
-//     ];
-
 var palette = [
     "#352e3e",
     "#453a0a",
@@ -115,7 +95,7 @@ function writeResponse(content, token, error = false) {
         let numbers = Array.from(last_code_block.children).filter(x => x.className == "word").map(x => x.innerText);
         last_code_block.innerHTML = "";
         if (last_code_block.className == "code_block") {
-            writeBlocks(main.children[main.children.length - 1], token, ["var(--main-blue)"], numbers, 0);
+            writeBlocks(main.children[main.children.length - 1], ["var(--main-blue)"], numbers, 0);
         }
     } else {
 
@@ -129,13 +109,9 @@ function writeResponse(content, token, error = false) {
             });
         }
         let last_code_block = main.children[main.children.length - 1];
-        let numbers = [];
         let curr_stack = stack_list.find(x => x.name == token.stackname);
 
         if (last_code_block.className == "code_block") {
-            let code = last_code_block.innerText;
-            let curr_word = 0;
-
             let numbers = Array.from(last_code_block.children).filter(x => x.className == "word").map(x => x.innerText);
             last_code_block.innerHTML = "";
 
@@ -154,7 +130,7 @@ function writeResponse(content, token, error = false) {
             if (token.tokentype == motif.TokenTypes.REVERSED) {
                 palette_to_use = palette_to_use.reverse();
             }
-            writeBlocks(last_code_block, token, palette_to_use, numbers, rot_offset);
+            writeBlocks(last_code_block, palette_to_use, numbers, rot_offset);
         }
     }
     resp_div.innerHTML = content;
@@ -168,7 +144,7 @@ function writeResponse(content, token, error = false) {
     main.appendChild(resp_div);
 }
 
-function writeBlocks(last_code_block, token, palette, numbers, rot_offset) {
+function writeBlocks(last_code_block, palette, numbers, rot_offset) {
     let n = 0;
     numbers.forEach(element => {
         if (n > 0) {
@@ -191,16 +167,36 @@ function writeBlocks(last_code_block, token, palette, numbers, rot_offset) {
 // current state of stacks
 function updateStacks() {
     let stackbox = document.getElementById("stacks");
-    let text = "STACKS<br/><br/>";
+    stackbox.innerHTML = "<div style='float:left;'>STACKS</div>";
+    stackbox.innerHTML += "<div style='float:right; transform: scaleX(-1)'>MOTIFS</div>";
+
+    let text = "";
     for(let i = 0; i < runtime.stacks.length; i++) {
+        text += "<div style='float:left; clear: both;'>";
         text += motif.GetStackName(i) + " [";
         for(let j = 0; j < runtime.stacks[i].length; j++) {
             if (j > 0) text += " ";
             text += runtime.stacks[i][j];
         }
-        text += "]<br/>";
+        text += "]</div>";
+
+        text += "<div style='float:right; direction:rtl;'>";
+        text += `<div style='display: inline-block; transform:scaleX(-1);'>${motif.GetStackName(i)}</div>`;
+        let curr_stack = stack_list[i];
+
+        let palette_to_use = palette.slice(curr_stack.start, curr_stack.start + curr_stack.size);
+
+        if (palette_to_use.length < curr_stack.size) {
+            let extra = curr_stack.size - palette_to_use.length;
+            palette_to_use = palette_to_use.concat(palette.slice(0, extra));
+        }
+
+        text += " </div>";
+        stackbox.innerHTML += text;
+        text = "";
+
+        writeBlocks(stackbox.lastChild, palette_to_use, lexer.motifs[i], 0);
     }
-    stackbox.innerHTML = text;
 }
 
 // output from the program
