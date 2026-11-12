@@ -12,7 +12,7 @@
 <body>
     <div id="cover_stripes"></div>
     <div id="cover_static"></div>
-    <div id="cover_burnin"></div>
+    <div id="cover_burnin" inert></div>
     <div id="content" class="content">
         <div id="inner_content" class="inner_content">
             <div id="menu" class="menu">
@@ -27,17 +27,20 @@
                     <div id="loaders" class="loaders">
                         MENU<br/>
                         <input type="button" id="load_program" value="load program" onclick="runtime.loadProgram()" /><br/>
-                        <select id="load_example">
-                            <option value="none">load example</option>
-                            <option value="hello_world">Hello, World!</option>
-                        </select>
+                        <div id="load_example" class="dropdown" data-value="none">
+                            <div class="dropdown_button" tabindex="0" role="combobox" aria-label="load example" aria-haspopup="listbox" aria-expanded="false" aria-controls="load_example_list">load example</div>
+                            <ul id="load_example_list" class="dropdown_list" role="listbox" hidden>
+                                <li id="load_example_none" role="option" data-value="none" aria-selected="true" aria-disabled="true" disabled>load example</li>
+                                <li id="load_example_hello_world" role="option" data-value="hello_world" aria-selected="false">Hello, World!</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
                 <div id="stacks" class="stacks">STATE</div>
                 <div id="output">OUTPUT</div>
             </div>
             <div id="main_holder" class="main_holder">
-            <div id="main" class="main"><div></div><div class="header">MOTIF repl console. enter command, or <a href="rules.html">learn the rules here</a></div></div>
+            <div id="main" class="main"><div></div><div class="header">MOTIF console. enter motif code, or <a href="/Motif/Language/">read more here</a></div></div>
             </div>  
         </div>
     </div>

@@ -1,4 +1,9 @@
 
+var DEBUG = false; // show no-op messages on the page, rather than only in the console
+
+const CHAR_WIDTH = 20; // px per character in a typed word
+const WORD_PADDING = 8; // the word's left padding, outside its width
+
 var lexer, runtime;
 
 var stack_list = [];
@@ -50,25 +55,6 @@ function writeCode(content, cursorMove = false, isNewLine = true) {
     var newDiv = document.createElement("div");
     newDiv.className = "code_block";
 
-    let is_first = true;
-
-    content.split(" ").forEach(element => {
-        if (element.length > 0) {
-            if (!is_first) {
-                let spacer = document.createElement("div");
-                spacer.className = "sep_block"; // spacer
-                newDiv.appendChild(spacer);
-            }
-            is_first = false;
-
-            let currword = document.createElement("div");
-            currword.classList.add('word');
-            currword.innerText = element.length;
-            currword.style.width = element.length * 20 + "px";
-            newDiv.appendChild(currword);
-        }
-    });
-
     if (!isNewLine) {
         main.removeChild(main.lastChild);
     }
@@ -80,17 +66,47 @@ function writeCode(content, cursorMove = false, isNewLine = true) {
     }
 
     main.appendChild(newDiv);
+
+    // a word wider than the column is split at the line end, so that it
+    // can't stretch the column (it must be in the page to measure the column)
+    let style = getComputedStyle(newDiv);
+    let room = newDiv.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+    let max_chars = Math.max(1, Math.floor((room - WORD_PADDING) / CHAR_WIDTH));
+
+    let is_first = true;
+
+    content.split(" ").forEach(element => {
+        if (element.length > 0) {
+            if (!is_first) {
+                let spacer = document.createElement("div");
+                spacer.className = "sep_block"; // spacer
+                newDiv.appendChild(spacer);
+            }
+            is_first = false;
+
+            // only the first piece is a "word": it holds the whole length, and the rest are "word cont"
+            for (let start = 0; start < element.length; start += max_chars) {
+                let piece = Math.min(max_chars, element.length - start);
+                let currword = document.createElement("div");
+                currword.className = start == 0 ? "word" : "word cont";
+                currword.innerText = start == 0 ? element.length : " "; // blank, but full height
+                currword.style.width = piece * CHAR_WIDTH + "px";
+                newDiv.appendChild(currword);
+            }
+        }
+    });
+
     if (cursorMove) placeCursor(content.slice(-1) == " ");
 }
 
-function writeResponse(content, token, error = false) {
+function writeResponse(content, token, error = false, noop = false) {
     // if there's a new response, then let's check that the code block has been formatted
 
     let main = document.getElementById("main");
     var resp_div = document.createElement("div");
     resp_div.className = "resp_block";
-    if (error) {
-        resp_div.classList.add("error");
+    if (error || noop) {
+        resp_div.classList.add(error ? "error" : "noop");
         let last_code_block = main.children[main.children.length - 1];
         let numbers = Array.from(last_code_block.children).filter(x => x.className == "word").map(x => x.innerText);
         last_code_block.innerHTML = "";
@@ -132,6 +148,10 @@ function writeResponse(content, token, error = false) {
             }
             writeBlocks(last_code_block, palette_to_use, numbers, rot_offset);
         }
+    }
+    if (noop && !DEBUG) {
+        console.log(content);
+        return;
     }
     resp_div.innerHTML = content;
 
@@ -203,6 +223,99 @@ function updateStacks() {
 function updateOutput(content) {
 }
 
+function setupDropdown(id) {
+    let dropdown = document.getElementById(id);
+    let button = dropdown.querySelector(".dropdown_button");
+    let list = dropdown.querySelector(".dropdown_list");
+    let options = Array.from(list.children);
+    let start_option = list.querySelector("[disabled]");
+    let active = null;
+
+    const enabledOptions = () => options.filter(x => !x.hasAttribute("disabled"));
+
+    function setActive(option) {
+        if (active) active.classList.remove("active");
+        active = option;
+        active.classList.add("active");
+        active.scrollIntoView({ block: "nearest" });
+        button.setAttribute("aria-activedescendant", active.id);
+        updateBurnIn();
+    }
+
+    function moveActive(by) {
+        let enabled = enabledOptions();
+        let i = enabled.indexOf(active) + by;
+        setActive(enabled[Math.max(0, Math.min(i, enabled.length - 1))]);
+    }
+
+    function open() {
+        list.hidden = false;
+        button.setAttribute("aria-expanded", "true");
+        button.focus(); // Safari doesn't focus on click, and the keys need it
+        let selected = list.querySelector("[aria-selected='true']");
+        setActive(selected.hasAttribute("disabled") ? enabledOptions()[0] : selected);
+    }
+
+    function close() {
+        if (list.hidden) return;
+        list.hidden = true;
+        button.setAttribute("aria-expanded", "false");
+        button.removeAttribute("aria-activedescendant");
+        // hand the keyboard back to the console, or the next enter would reopen the list
+        button.blur();
+        updateBurnIn();
+    }
+
+    function choose(option) {
+        let changed = dropdown.dataset.value != option.dataset.value;
+        options.forEach(x => x.setAttribute("aria-selected", x == option));
+        start_option.toggleAttribute("disabled", option == start_option);
+        start_option.setAttribute("aria-disabled", option == start_option);
+        button.innerText = option.innerText;
+        dropdown.dataset.value = option.dataset.value;
+        close();
+        if (changed) dropdown.dispatchEvent(new Event("change"));
+    }
+
+    button.addEventListener("click", () => list.hidden ? open() : close());
+    button.addEventListener("blur", close);
+
+    // keep focus on the button while clicking the list, so that blur doesn't close it first
+    list.addEventListener("mousedown", e => e.preventDefault());
+    list.addEventListener("mousemove", e => {
+        let option = e.target.closest("li:not([disabled])");
+        if (option && option != active) setActive(option);
+    });
+    list.addEventListener("click", e => {
+        let option = e.target.closest("li:not([disabled])");
+        if (option) choose(option);
+    });
+
+    // keys we handle here must not reach the console, so they are stopped on keydown
+    button.addEventListener("keydown", e => {
+        if (list.hidden) {
+            if (["Enter", " ", "ArrowDown", "ArrowUp"].includes(e.key)) {
+                e.preventDefault();
+                open();
+            }
+            return;
+        }
+        switch (e.key) {
+            case "ArrowDown": moveActive(1); break;
+            case "ArrowUp": moveActive(-1); break;
+            case "Home": setActive(enabledOptions()[0]); break;
+            case "End": setActive(enabledOptions().pop()); break;
+            case "Enter":
+            case " ": choose(active); break;
+            case "Escape": close(); break;
+            default:
+                close(); // anything else is meant for the console
+                return;
+        }
+        e.preventDefault();
+    });
+}
+
 function syncScroll(element1, element2) {
     element1.addEventListener('scroll', () => {
         // element2.scrollTo(0,100);
@@ -252,6 +365,17 @@ window.onload = function(e) {
 
     writeCode("");
     placeCursor();
+
+    setupDropdown("load_example");
+    document.getElementById("load_example").addEventListener("change", e => {
+        let examples = { hello_world: "programs/helloworld.motif" };
+        let path = examples[e.currentTarget.dataset.value];
+        if (!path) return;
+        fetch(path)
+            .then(r => r.ok ? r.text() : Promise.reject(new Error(r.status)))
+            .then(text => { lexer.readTextBlock(text, "main"); updateBurnIn(); })
+            .catch(err => console.error("Could not load example:", err));
+    });
 
     updateBurnIn();
 

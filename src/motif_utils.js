@@ -27,6 +27,14 @@ motif.SyntaxError = function(message, linenum, line) {
     };
 }
 
+// A line that fails to define a motif is outside the language: a no-op rather than an error
+motif.NoOp = function(message) {
+    this.message = message;
+    this.toString = function() {
+      return this.message;
+    };
+}
+
 motif.RuntimeError = function(message) {
     this.message = message;
     this.toString = function() {

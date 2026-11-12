@@ -107,46 +107,94 @@ a:visited  {
     background-color: var(--menu-head);
     text-align: center;
 }
+/* button: a raised key that sinks when pressed */
 input[type="button" i] {
-    border: solid var(--main-blue) 4px;
+    border: solid var(--main-blue) 3px;
     border-radius: 0;
     font-size: 100%;
     margin-top: 10px;
+    margin-bottom: 5px;
+    padding: 6px 4px;
     font-family: ibm;
     width: 80%;
-    background-color: var(--menu-back);
-    box-shadow: 0 0 2px var(--main-blue);
+    color: var(--out-front);
+    background-color: var(--out-back);
+    box-shadow: inset 2px 2px 0 rgba(255, 255, 255, .28), inset -2px -2px 0 rgba(0, 0, 0, .35), 0 5px 0 var(--main-blue);
+    cursor: pointer;
 }
 input[type="button" i]:hover {
-    border: solid #aaffaa 4px;
-    background-color: var(--out-back);
+    background-color: #7d694f;
+}
+input[type="button" i]:active {
+    transform: translateY(4px);
+    box-shadow: inset 2px 2px 0 rgba(0, 0, 0, .35), inset -2px -2px 0 rgba(255, 255, 255, .15), 0 1px 0 var(--main-blue);
 }
 
-select {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    padding: 3px;
-    background: url("arrow.png") var(--menu-back) no-repeat 96% !important;
-   
-    border: solid var(--main-blue) 4px;
-    border-radius: 0;
-    font-size: 100%;
-    margin-top: 10px;
-    font-family: ibm;
+/* drop down: a recessed field, with the arrow on its own dark tab */
+.dropdown {
+    position: relative;
     width: 80%;
-    box-shadow: 0 0 2px var(--main-blue);
+    margin: 10px auto 0;
+    font-size: 100%;
+    text-align: left;
 }
-
-    select > option {
-        border: solid var(--main-blue) 4px;
-        border-radius: 0;
-        font-size: 100%;
-        margin-top: 10px;
-        font-family: ibm;
-    }
-
-select::-ms-expand { display: none; }
+.dropdown_button {
+    padding: 6px 42px 6px 8px;
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='10'%3E%3Cpath d='M0 0h16L8 10z' fill='%23efed89'/%3E%3C/svg%3E") right 9px center no-repeat,
+        linear-gradient(var(--main-blue), var(--main-blue)) right center / 34px 100% no-repeat,
+        #f8f7c9;
+    color: var(--main-blue);
+    border: solid var(--main-blue) 3px;
+    box-sizing: border-box;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    box-shadow: inset 2px 2px 0 rgba(0, 0, 0, .25);
+    cursor: pointer;
+    user-select: none;
+}
+.dropdown_button:hover, .dropdown_button[aria-expanded="true"] {
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='10'%3E%3Cpath d='M0 0h16L8 10z' fill='%23fff'/%3E%3C/svg%3E") right 9px center no-repeat,
+        linear-gradient(var(--out-back), var(--out-back)) right center / 34px 100% no-repeat,
+        #fff;
+}
+input[type="button" i]:focus-visible, .dropdown_button:focus-visible {
+    outline: 3px dashed var(--main-blue);
+    outline-offset: 3px;
+}
+/* the open list: drops over the panels below, with the same hard shadow as the key */
+.dropdown_list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    margin: 5px 0 0;
+    padding: 0;
+    list-style: none;
+    background-color: #f8f7c9;
+    border: solid var(--main-blue) 3px;
+    box-shadow: 0 5px 0 var(--main-blue);
+    color: var(--main-blue);
+    cursor: pointer;
+    user-select: none;
+}
+.dropdown_list > li {
+    padding: 6px 8px;
+}
+.dropdown_list > li + li {
+    border-top: var(--main-blue) 2px solid;
+}
+.dropdown_list > li.active {
+    background-color: var(--main-blue);
+    color: var(--opt-back);
+}
+.dropdown_list > li[disabled] {
+    color: #7f7b60;
+    cursor: default;
+}
 
 .stacks {
     background-color: var(--stacks-back);
@@ -204,7 +252,7 @@ select::-ms-expand { display: none; }
     padding-top: 0;
     padding-left: 0;
     margin-left: 0;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); /* keep the columns equal whatever is typed */
     display: grid;
     grid-row-gap: 0px;    
     grid-column-gap: 5px;
@@ -261,6 +309,9 @@ select::-ms-expand { display: none; }
 }
 .main > div.error {
     color: var(--error);
+}
+.main > div.noop {
+    color: #000;
 }
 .main > .header {
     font-size: 125%;
@@ -360,7 +411,7 @@ select::-ms-expand { display: none; }
     .loaders {
         padding-bottom: 6px;
     }
-    input[type="button" i], select {
+    input[type="button" i], .dropdown {
         margin-top: 6px;
     }
     .main_holder {

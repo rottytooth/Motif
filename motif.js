@@ -27,6 +27,14 @@ motif.SyntaxError = function(message, linenum, line) {
     };
 }
 
+// A line that fails to define a motif is outside the language: a no-op rather than an error
+motif.NoOp = function(message) {
+    this.message = message;
+    this.toString = function() {
+      return this.message;
+    };
+}
+
 motif.RuntimeError = function(message) {
     this.message = message;
     this.toString = function() {
@@ -162,7 +170,10 @@ motif.lexer = function(writeCode, writeResponse, runtime) {
                 currentline = "";
             } catch(e) {
                 currentline = ""; // in case it didn't clear before the error
-                if (e instanceof SyntaxError) {
+                if (e instanceof motif.NoOp) {
+                    writeResponse(e.message, null, false, true);
+                }
+                else if (e instanceof SyntaxError) {
                     this.error = e;
                     writeResponse(e, null, true);
                 }
@@ -192,23 +203,23 @@ motif.lexer = function(writeCode, writeResponse, runtime) {
 
     const verifyMotif = (motifblocks, line, linenum) => {
         if (motifblocks.length < 3) {
-            throw new SyntaxError("Motif must be at least three words", linenum, line);
+            throw new motif.NoOp("Motif must be at least three words");
         }
         if (motifblocks.every(el => el == 1)) {
-            throw new SyntaxError("Motif must have at least one word with more than one character");
+            throw new motif.NoOp("Motif must have at least one word with more than one character");
         }
         if (!motif.isPrime(motifblocks.length)) {
             // is not prime, invalid to be motif
-            throw new SyntaxError("Motif must have a prime-number count of words", linenum, line);
+            throw new motif.NoOp("Motif must have a prime-number count of words");
         }
         if (motifblocks.every(el => el < 5) && motifblocks.length > 3) {
-            throw new SyntaxError("I don't like this motif, do something else", linenum, line);
+            throw new motif.NoOp("I don't like this motif, do something else");
         }
         // if (!motifs.every(el => el.length < motifblocks.length - 2 || el.length > motifblocks.length + 2))  {
         //     throw new SyntaxError("Motif must be at least two more or two fewer elements than other motifs");
         // }
         if (JSON.stringify(motifblocks) === JSON.stringify(motifblocks.slice().reverse())) {
-            throw new SyntaxError("Motif cannot be symmetrical");
+            throw new motif.NoOp("Motif cannot be symmetrical");
         }
     } 
 
